@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server AI Assistant (Local SQLite Sync)</title>
+    <meta name="description" content="Production-ready Server AI Assistant with dedicated Refresh Point data synchronization engine and SQLite persistence.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- TOP HEADER -->
+        <header class="app-header" id="app-header">
+            <div class="header-left">
+                <div class="logo-group">
+                    <div class="logo-icon-wrapper">
+                        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                        <span class="pulse-indicator"></span>
+                    </div>
+                    <div>
+                        <h1 class="app-title" id="main-title">Server AI Assistant</h1>
+                        <p class="app-subtitle">Local SQLite Sync Engine & Ground-Truth Intelligence</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Header Controls & Live Metrics Badges -->
+            <div class="header-right">
+                <div class="metrics-bar" id="metrics-bar">
+                    <div class="metric-badge badge-inserted" id="badge-inserted" title="Records Inserted in latest sync">
+                        <span class="badge-dot dot-green"></span>
+                        <span class="badge-label">Inserted:</span>
+                        <span class="badge-value" id="val-inserted">0</span>
+                    </div>
+                    <div class="metric-badge badge-updated" id="badge-updated" title="Records Updated in latest sync">
+                        <span class="badge-dot dot-blue"></span>
+                        <span class="badge-label">Updated:</span>
+                        <span class="badge-value" id="val-updated">0</span>
+                    </div>
+                    <div class="metric-badge badge-skipped" id="badge-skipped" title="Records Skipped in latest sync">
+                        <span class="badge-dot dot-purple"></span>
+                        <span class="badge-label">Skipped:</span>
+                        <span class="badge-value" id="val-skipped">0</span>
+                    </div>
+                    <div class="metric-badge badge-timestamp" id="badge-timestamp" title="Timestamp of most recent sync">
+                        <svg class="mini-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span class="badge-time" id="val-synced-at">Not synced yet</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons-group">
+                    <button class="btn btn-emerald" id="btn-open-intake-modal" title="Open AI Record Intake Form to add data one-by-one">
+                        <svg class="mini-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                        <span>➕ Add Record</span>
+                    </button>
+                    <input type="file" id="input-file-sql" accept=".sql" style="display:none;">
+                    <button class="btn btn-secondary" id="btn-upload-sql" title="Directly upload any departmental .sql backup to ingest into SQLite">
+                        <svg class="mini-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                        </svg>
+                        <span>Upload .SQL</span>
+                    </button>
+                    <button class="btn btn-primary" id="btn-refresh-sync" title="Fetch live data from target microservices">
+                        <svg class="sync-icon" id="sync-spinner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                        </svg>
+                        <span id="btn-sync-text">Refresh Point Sync</span>
+                    </button>
+                    <button class="btn btn-secondary" id="btn-toggle-db-modal" title="View SQLite Tables & Records">
+                        <svg class="mini-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                        </svg>
+                        <span>SQLite DB</span>
+                    </button>
+                    <button class="btn btn-rose" id="btn-header-clear-db" title="Wipe all data from SQLite">
+                        <svg class="mini-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                        <span>Clear DB</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- SUBHEADER TARGET APPS STRIP -->
+        <section class="targets-status-strip" id="targets-status-strip">
+            <div class="target-card" id="card-app1">
+                <div class="target-card-header">
+                    <span class="status-pill status-ready" id="status-pill-app1"></span>
+                    <span class="target-name">CCTV</span>
+                    <span class="target-port">Port 8085</span>
+                </div>
+                <div class="target-card-meta">
+                    <span class="meta-item">Endpoint: <code>/app1/api/data</code></span>
+                    <span class="meta-item records-count" id="count-app1">0 records</span>
+                </div>
+            </div>
+
+            <div class="target-card" id="card-app2">
+                <div class="target-card-header">
+                    <span class="status-pill status-ready" id="status-pill-app2"></span>
+                    <span class="target-name">Food</span>
+                    <span class="target-port">Port 8085</span>
+                </div>
+                <div class="target-card-meta">
+                    <span class="meta-item">Endpoint: <code>/app2/api/data</code></span>
+                    <span class="meta-item records-count" id="count-app2">0 records</span>
+                </div>
+            </div>
+
+            <div class="target-card" id="card-app3">
+                <div class="target-card-header">
+                    <span class="status-pill status-ready" id="status-pill-app3"></span>
+                    <span class="target-name">Transport</span>
+                    <span class="target-port">Port 8085</span>
+                </div>
+                <div class="target-card-meta">
+                    <span class="meta-item">Endpoint: <code>/app3/api/data</code></span>
+                    <span class="meta-item records-count" id="count-app3">0 records</span>
+                </div>
+            </div>
+
+            <div class="target-card target-card-db" id="card-db-summary">
+                <div class="target-card-header">
+                    <span class="status-pill status-ready" id="status-pill-db"></span>
+                    <span class="target-name">Local SQLite DB</span>
+                    <span class="target-port">app.db</span>
+                </div>
+                <div class="target-card-meta">
+                    <span class="meta-item">Total Stored:</span>
+                    <span class="meta-item records-count highlight-db" id="count-db-total">0 rows</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAIN CHAT INTERACTION AREA -->
+        <main class="chat-main" id="chat-main">
+            <!-- Messages Scroll Container -->
+            <div class="chat-messages" id="chat-messages">
+                <!-- Welcome Assistant Message -->
+                <div class="message-wrapper assistant">
+                    <div class="avatar assistant-avatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM4 12a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2 2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM16 12a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2zM12 16a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2z"/>
+                        </svg>
+                    </div>
+                    <div class="bubble assistant-bubble">
+                        <div class="bubble-header">
+                            <span class="author-name">Server AI Assistant</span>
+                            <span class="model-badge" id="welcome-badge">Ground-Truth Engine</span>
+                        </div>
+                        <div class="bubble-content markdown-body">
+                            <p>Hello! I am the <strong>Rathinam Server AI Assistant & Campus Intelligence Officer</strong>.</p>
+                            <p>I analyze real-time synchronized campus data and assist students, faculty, and administration with authoritative information:</p>
+                            <ul>
+                                <li>📹 <strong>CCTV & Campus Safety:</strong> Device health, camera online status across hostels/campus, NVR storage, and security.</li>
+                                <li>🔐 <strong>Biometrics & Attendance:</strong> Device operational status across blocks and food court counters.</li>
+                                <li>🚌 <strong>Campus Transport:</strong> Active campus bus fleet, vehicle registrations, driver contacts, and seating capacities.</li>
+                                <li>🎫 <strong>Maintenance & Operations:</strong> Active tickets, resolution rates (98%), or raise a new ticket directly in chat.</li>
+                                <li>📁 <strong>SQL Ingestion & Data Intake:</strong> Click <strong>"Upload .SQL"</strong> or <strong>"➕ Add Record"</strong> to sync new departmental datasets.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prompt Suggestions / Quick Chips -->
+            <div class="quick-prompts-container" id="quick-prompts">
+                <span class="quick-prompts-label">Quick Actions:</span>
+                <button class="chip chip-emerald" id="chip-open-intake" title="Open AI data intake form">➕ Add Record</button>
+                <button class="chip" data-prompt="Give me the complete CCTV dashboard summary and device health status">📹 CCTV Dashboard & Health</button>
+                <button class="chip" data-prompt="What is the status of biometric attendance devices across campus?">🔐 Biometric Attendance</button>
+                <button class="chip" data-prompt="List all active campus buses, drivers, seating capacities, and phone numbers">🚌 Buses & Drivers</button>
+                <button class="chip" data-prompt="Show all active in-progress and open maintenance tickets">🎫 Maintenance Tickets</button>
+                <button class="chip" data-prompt="Give a complete summary across all departments">📊 All Departments Summary</button>
+                <button class="chip chip-rose" id="chip-clear-db" title="Wipe all records from SQLite">🗑️ Clear Database</button>
+            </div>
+
+
+            <!-- Chat Input Bar -->
+            <div class="chat-input-container">
+                <form class="chat-input-form" id="chat-form">
+                    <div class="input-wrapper">
+                        <textarea
+                            id="chat-input"
+                            class="chat-input"
+                            rows="1"
+                            placeholder="Ask any question about your synchronized database records (Enter to send)..."
+                            required
+                        ></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-send" id="btn-send" title="Send query (Enter)">
+                        <span>Send</span>
+                        <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </main>
+
+        <!-- DATABASE INSPECTOR MODAL -->
+        <div class="modal-backdrop" id="db-modal-backdrop">
+            <div class="modal-card" id="db-modal-card">
+                <div class="modal-header">
+                    <div class="modal-title-group">
+                        <h2 class="modal-title">SQLite Database Inspector (app.db)</h2>
+                        <span class="modal-badge-total" id="modal-total-badge">0 Records</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <button class="btn btn-xs" id="btn-modal-import-all" style="background:rgba(6,182,212,0.15); color:var(--accent-cyan); border:1px solid rgba(6,182,212,0.3);" title="Ingest all 3 uploaded SQL dumps (CCTV, Food, Transport)">
+                            📥 Ingest 3 SQL Dumps
+                        </button>
+                        <button class="btn btn-xs" id="btn-modal-clear-db" style="background:rgba(244,63,94,0.15); color:var(--accent-rose); border:1px solid rgba(244,63,94,0.3);">
+                            🗑️ Clear Database
+                        </button>
+                        <button class="btn-close-modal" id="btn-close-modal">&times;</button>
+                    </div>
+                </div>
+                <div class="modal-tabs">
+                    <button class="tab-btn active" id="tab-records">Software Records Table</button>
+                    <button class="tab-btn" id="tab-history">Sync History Table</button>
+                    <button class="tab-btn" id="tab-upload">📁 Upload SQL Dump</button>
+                    <button class="tab-btn" id="tab-add">➕ Add Individual Record</button>
+                </div>
+                <div class="modal-body" id="modal-table-container">
+                    <div class="table-responsive" id="table-view-records">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Source App</th>
+                                    <th>Record ID</th>
+                                    <th>Content Hash (SHA-256)</th>
+                                    <th>Payload (JSON)</th>
+                                    <th>Updated At</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-records">
+                                <tr><td colspan="5" class="empty-cell">No records yet. Click 'Refresh Point Sync' to ingest.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-responsive hidden" id="table-view-history">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Synced At</th>
+                                    <th>Software</th>
+                                    <th>Fetched</th>
+                                    <th>Inserted</th>
+                                    <th>Updated</th>
+                                    <th>Skipped</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-history">
+                                <tr><td colspan="7" class="empty-cell">No sync history recorded yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-responsive hidden" id="table-view-add">
+                        <form id="form-add-individual" style="max-width: 600px; margin: 10px auto; display: flex; flex-direction: column; gap: 16px;">
+                            <div style="display:flex; flex-direction:column; gap:6px;">
+                                <label style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">Source Application Name</label>
+                                <input type="text" id="input-record-app" list="app-suggestions" placeholder="e.g. CCTV, Food, or Transport" required style="background:var(--bg-elevated); border:1px solid var(--border-color); color:#fff; padding:10px 14px; border-radius:var(--radius-sm); font-family:var(--font-main);">
+                                <datalist id="app-suggestions">
+                                    <option value="CCTV">
+                                    <option value="Food">
+                                    <option value="Transport">
+                                </datalist>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:6px;">
+                                <label style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">Unique Record ID</label>
+                                <input type="text" id="input-record-id" placeholder="e.g. ITEM-001 or CUST-402" required style="background:var(--bg-elevated); border:1px solid var(--border-color); color:#fff; padding:10px 14px; border-radius:var(--radius-sm); font-family:var(--font-mono);">
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:6px;">
+                                <label style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">Payload (JSON Object)</label>
+                                <textarea id="input-record-json" rows="6" placeholder='{\n  "name": "Custom Product",\n  "status": "active",\n  "quantity": 10\n}' required style="background:var(--bg-elevated); border:1px solid var(--border-color); color:#fff; padding:10px 14px; border-radius:var(--radius-sm); font-family:var(--font-mono); font-size:0.85rem; resize:vertical;"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="btn-submit-individual-record" style="align-self: flex-start; padding: 10px 24px;">
+                                💾 Save Record to SQLite DB
+                            </button>
+                        </form>
+                    </div>
+                    <div class="table-responsive hidden" id="table-view-upload">
+                        <div style="max-width: 600px; margin: 20px auto; text-align: center;">
+                            <input type="file" id="modal-file-input" accept=".sql" style="display:none;">
+                            <div class="dropzone" id="modal-dropzone" style="border: 2px dashed rgba(6,182,212,0.4); border-radius: var(--radius-md); padding: 40px 20px; background: rgba(15,23,42,0.4); cursor: pointer; transition: all 0.2s ease;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; color: var(--accent-cyan); margin: 0 auto 12px auto; display: block;">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                                </svg>
+                                <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 6px;">Select or Drop .SQL Backup File</h3>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+                                    Upload any departmental SQL backup or dump file (e.g. CCTV, Food, Transport, IT, Finance).
+                                </p>
+                                <button type="button" class="btn btn-primary" id="btn-modal-browse-file" style="margin: 0 auto;">
+                                    📂 Browse Computer for .SQL File
+                                </button>
+                                <div id="modal-selected-file-name" style="margin-top: 14px; font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-emerald);"></div>
+                            </div>
+                            <div style="margin-top: 16px; display: flex; justify-content: center; gap: 12px;">
+                                <button type="button" class="btn btn-primary" id="btn-process-modal-upload" style="display: none; padding: 10px 28px;">
+                                    🚀 Upload & Run Differential Ingestion
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SMART DATA INTAKE MODAL -->
+        <div class="modal-backdrop" id="intake-modal-backdrop">
+            <div class="modal-card intake-modal-card" id="intake-modal-card">
+                <div class="modal-header">
+                    <div class="modal-title-group">
+                        <div class="intake-icon-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:var(--accent-emerald);">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="modal-title">Smart Department Data Intake</h2>
+                            <p style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">
+                                AI analyzes, extracts every attribute, and persists into SQLite with zero mismatching
+                            </p>
+                        </div>
+                    </div>
+                    <button class="btn-close-modal" id="btn-close-intake-modal">&times;</button>
+                </div>
+                
+                <div class="modal-body" style="padding: 24px;">
+                    <div id="intake-form-section">
+                        <form id="form-ai-intake" style="display:flex; flex-direction:column; gap:16px;">
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                                <div style="display:flex; flex-direction:column; gap:6px;">
+                                    <label style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">
+                                        Department Classification
+                                    </label>
+                                    <select id="intake-dept-select" class="form-select">
+                                        <option value="auto">🤖 Auto-Detect with AI (Recommended)</option>
+                                        <option value="CCTV">📹 CCTV Surveillance</option>
+                                        <option value="Transport">🚌 Transport & Bus Fleet</option>
+                                        <option value="Food">🍽️ Food & Cafeteria</option>
+                                        <option value="Maintenance">🎫 Maintenance & Tickets</option>
+                                        <option value="Administration">🏢 Administration</option>
+                                        <option value="custom">✏️ Custom Department...</option>
+                                    </select>
+                                    <input type="text" id="intake-dept-custom" placeholder="Enter custom department name" style="display:none; margin-top:6px;" class="form-input">
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:6px;">
+                                    <label style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">
+                                        Record ID (Optional)
+                                    </label>
+                                    <input type="text" id="intake-rec-id" placeholder="e.g. CAM-01, BUS-14, TKT-101 (or auto-generate)" class="form-input">
+                                </div>
+                            </div>
+
+                            <div style="display:flex; flex-direction:column; gap:6px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <label style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">
+                                        Record Information / Raw Data
+                                    </label>
+                                    <div class="sample-pills">
+                                        <span style="font-size:0.75rem; color:var(--text-muted); margin-right:4px;">Quick Fill:</span>
+                                        <button type="button" class="btn-sample-pill" data-sample="cctv">📹 CCTV</button>
+                                        <button type="button" class="btn-sample-pill" data-sample="transport">🚌 Transport</button>
+                                        <button type="button" class="btn-sample-pill" data-sample="food">🍽️ Food</button>
+                                        <button type="button" class="btn-sample-pill" data-sample="ticket">🎫 Ticket</button>
+                                    </div>
+                                </div>
+                                <textarea id="intake-text-input" rows="6" class="form-textarea" placeholder="Type or paste any record information in plain English or key-values.
+Example:
+Dome camera in Library 2nd floor, IP 10.90.15.42, 4MP, Hikvision DS-2CD2143G0, switch SW-LIB-02, status Online, code CCTV/LIB/02" required></textarea>
+                                <span style="font-size:0.75rem; color:var(--text-muted);">
+                                    💡 All fields, specifications, IP addresses, drivers, prices, and statuses will be preserved with 100% fidelity.
+                                </span>
+                            </div>
+
+                            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:8px;">
+                                <button type="button" class="btn btn-secondary" id="btn-cancel-intake">Cancel</button>
+                                <button type="submit" class="btn btn-emerald" id="btn-submit-intake" style="padding:10px 24px;">
+                                    <span id="btn-intake-text">⚡ Analyze & Save to Department</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Live Result Confirmation Card -->
+                    <div id="intake-result-section" style="display:none; animation:fadeIn 0.3s ease;">
+                        <div class="result-banner">
+                            <div class="result-banner-header">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <span class="success-check-badge">✓</span>
+                                    <div>
+                                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff;" id="result-headline">Record Successfully Analyzed & Saved</h3>
+                                        <p style="font-size:0.8rem; color:var(--text-secondary);" id="result-subline">Persisted in SQLite database (database/app.db)</p>
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <span class="badge-dept" id="result-dept-badge">CCTV</span>
+                                    <span class="badge-action" id="result-action-badge">INSERTED</span>
+                                </div>
+                            </div>
+
+                            <div class="result-grid" style="margin-top:16px;">
+                                <div class="result-meta-item">
+                                    <span class="meta-label">Entity Type:</span>
+                                    <span class="meta-val" id="result-entity-type">-</span>
+                                </div>
+                                <div class="result-meta-item">
+                                    <span class="meta-label">Record ID:</span>
+                                    <span class="meta-val font-mono" id="result-rec-id">-</span>
+                                </div>
+                                <div class="result-meta-item">
+                                    <span class="meta-label">Name / Title:</span>
+                                    <span class="meta-val" id="result-name">-</span>
+                                </div>
+                            </div>
+
+                            <div style="margin-top:16px;">
+                                <h4 style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">Extracted Specifications & Attributes</h4>
+                                <div class="attributes-table-wrapper">
+                                    <table class="attributes-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:35%;">Attribute</th>
+                                                <th>Extracted Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="result-attributes-tbody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; padding-top:16px; border-top:1px solid var(--border-color);">
+                                <div style="font-size:0.8rem; color:var(--text-secondary);" id="result-dept-count-msg">
+                                    Department total: 1 records
+                                </div>
+                                <div style="display:flex; gap:10px;">
+                                    <button type="button" class="btn btn-secondary" id="btn-intake-view-db">View in SQLite DB</button>
+                                    <button type="button" class="btn btn-emerald" id="btn-intake-add-another">➕ Add Another Record</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOTIFICATION TOAST -->
+        <div class="toast-container" id="toast-container"></div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
