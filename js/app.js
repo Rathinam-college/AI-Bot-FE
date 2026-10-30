@@ -13,6 +13,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // =========================================================================
     // STATE & CONFIGURATION
     // =========================================================================
+    // Automatically detect API base path so it works on both localhost (/) and live server (/ai-bot/)
+    const getApiBase = () => {
+        const path = window.location.pathname;
+        if (path.includes("/ai-bot")) {
+            return "/ai-bot/api";
+        }
+        return "/api";
+    };
+    const API_BASE = getApiBase();
+
     let currentUser = null;
     let authToken = localStorage.getItem("campus_auth_token") || null;
     let currentSessionId = null;
@@ -203,7 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            const res = await fetch("/api/auth/me", { headers: getAuthHeaders() });
+            const res = await fetch(`${API_BASE}/auth/me`, { headers: getAuthHeaders() });
             if (!res.ok) {
                 throw new Error("Session expired or invalid");
             }
@@ -278,7 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
             btnSubmit.textContent = "Signing In...";
 
             try {
-                const res = await fetch("/api/auth/login", {
+                const res = await fetch(`${API_BASE}/auth/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ username, password }),
@@ -323,7 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnNavbarLogout) {
         btnNavbarLogout.addEventListener("click", async () => {
             try {
-                await fetch("/api/auth/logout", {
+                await fetch(`${API_BASE}/auth/logout`, {
                     method: "POST",
                     headers: getAuthHeaders(),
                 });
@@ -416,7 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // =========================================================================
     async function loadDashboardData() {
         try {
-            const res = await fetch("/api/dashboard/summary");
+            const res = await fetch(`${API_BASE}/dashboard/summary`);
             if (!res.ok) return;
             const data = await res.json();
 
@@ -483,7 +493,7 @@ document.addEventListener("DOMContentLoaded", () => {
     async function loadChatSessions() {
         if (!chatSessionsList) return;
         try {
-            const res = await fetch("/api/chat/sessions", { headers: getAuthHeaders() });
+            const res = await fetch(`${API_BASE}/chat/sessions`, { headers: getAuthHeaders() });
             if (!res.ok) return;
             const data = await res.json();
             const sessions = data.sessions || [];
@@ -538,7 +548,7 @@ document.addEventListener("DOMContentLoaded", () => {
     async function selectChatSession(sessionId) {
         currentSessionId = sessionId;
         try {
-            const res = await fetch(`/api/chat/sessions/${sessionId}/messages`);
+            const res = await fetch(`${API_BASE}/chat/sessions/${sessionId}/messages`);
             if (!res.ok) throw new Error("Failed to load messages");
             const data = await res.json();
             const session = data.session;
@@ -573,7 +583,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function deleteChatSession(sessionId) {
         try {
-            const res = await fetch(`/api/chat/sessions/${sessionId}`, { method: "DELETE" });
+            const res = await fetch(`${API_BASE}/chat/sessions/${sessionId}`, { method: "DELETE" });
             if (res.ok) {
                 showToast("Chat session deleted.", "info");
                 if (currentSessionId === sessionId) {
@@ -714,7 +724,7 @@ document.addEventListener("DOMContentLoaded", () => {
         activeChatHistory.push({ role: "user", content: query });
 
         try {
-            const resp = await fetch("/api/chat", {
+            const resp = await fetch(`${API_BASE}/chat`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -798,7 +808,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             let reportData;
             if (currentSessionId) {
-                const res = await fetch(`/api/chat/sessions/${currentSessionId}/report`, { headers: getAuthHeaders() });
+                const res = await fetch(`${API_BASE}/chat/sessions/${currentSessionId}/report`, { headers: getAuthHeaders() });
                 if (!res.ok) throw new Error("Failed to generate report from server");
                 reportData = await res.json();
             } else {
@@ -962,7 +972,7 @@ document.addEventListener("DOMContentLoaded", () => {
         usersTableTbody.innerHTML = `<tr><td colspan="7" class="empty-cell">Loading registered team members...</td></tr>`;
 
         try {
-            const res = await fetch("/api/users", { headers: getAuthHeaders() });
+            const res = await fetch(`${API_BASE}/users`, { headers: getAuthHeaders() });
             if (!res.ok) {
                 if (res.status === 403) {
                     if (userControlDenied) userControlDenied.style.display = "block";
@@ -1168,7 +1178,7 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 if (!uid) {
                     // Create new user
-                    const res = await fetch("/api/users", {
+                    const res = await fetch(`${API_BASE}/users`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -1201,7 +1211,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     };
                     if (password) payload.password = password;
 
-                    const res = await fetch(`/api/users/${uid}`, {
+                    const res = await fetch(`${API_BASE}/users/${uid}`, {
                         method: "PUT",
                         headers: {
                             "Content-Type": "application/json",
@@ -1231,7 +1241,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function deleteUserAccount(userId) {
         try {
-            const res = await fetch(`/api/users/${userId}`, {
+            const res = await fetch(`${API_BASE}/users/${userId}`, {
                 method: "DELETE",
                 headers: getAuthHeaders(),
             });
@@ -1257,7 +1267,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (btnSyncText) btnSyncText.textContent = "Syncing...";
 
         try {
-            const res = await fetch("/api/refresh", { method: "POST" });
+            const res = await fetch(`${API_BASE}/refresh`, { method: "POST" });
             if (!res.ok) {
                 const err = await res.json();
                 throw new Error(err.detail || "Sync failed");
@@ -1311,7 +1321,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!tbodyRecords) return;
         tbodyRecords.innerHTML = `<tr><td colspan="5" class="empty-cell">Loading records from app.db...</td></tr>`;
         try {
-            const res = await fetch("/api/records");
+            const res = await fetch(`${API_BASE}/records`);
             const data = await res.json();
             if (modalTotalBadge) modalTotalBadge.textContent = `${data.total} Records`;
 
@@ -1338,7 +1348,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!tbodyHistory) return;
         tbodyHistory.innerHTML = `<tr><td colspan="7" class="empty-cell">Loading sync history...</td></tr>`;
         try {
-            const res = await fetch("/api/history?limit=25");
+            const res = await fetch(`${API_BASE}/history?limit=25`);
             const data = await res.json();
             if (!data.history || data.history.length === 0) {
                 tbodyHistory.innerHTML = `<tr><td colspan="7" class="empty-cell">No sync history yet.</td></tr>`;
@@ -1368,7 +1378,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             if (!confirm("Are you sure you want to completely clear the SQLite database?")) return;
             try {
-                const res = await fetch("/api/database/clear", { method: "POST" });
+                const res = await fetch(`${API_BASE}/database/clear`, { method: "POST" });
                 const d = await res.json();
                 showToast(d.message, "success");
                 loadDashboardData();
@@ -1384,7 +1394,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnModalImportAll.addEventListener("click", async () => {
             showToast("Ingesting all 3 uploaded SQL dumps (CCTV, Food, Transport)...", "info");
             try {
-                const res = await fetch("/api/import-all-dumps", { method: "POST" });
+                const res = await fetch(`${API_BASE}/import-all-dumps`, { method: "POST" });
                 const d = await res.json();
                 showToast("✅ Ingestion Successful!", "success");
                 loadDashboardData();
@@ -1423,7 +1433,7 @@ document.addEventListener("DOMContentLoaded", () => {
             formData.append("file", file);
 
             try {
-                const res = await fetch("/api/upload-sql-backup", { method: "POST", body: formData });
+                const res = await fetch(`${API_BASE}/upload-sql-backup`, { method: "POST", body: formData });
                 if (!res.ok) throw new Error("Upload failed");
                 const data = await res.json();
                 showToast(`✅ ${file.name} ingested successfully into ${data.department}!`, "success");
@@ -1461,7 +1471,7 @@ document.addEventListener("DOMContentLoaded", () => {
             formData.append("file", file);
 
             try {
-                const res = await fetch("/api/upload-sql-backup", { method: "POST", body: formData });
+                const res = await fetch(`${API_BASE}/upload-sql-backup`, { method: "POST", body: formData });
                 const data = await res.json();
                 showToast(`✅ ${file.name} ingested into ${data.department}!`, "success");
                 loadDashboardData();
@@ -1491,7 +1501,7 @@ document.addEventListener("DOMContentLoaded", () => {
             btnIntakeText.textContent = "⚡ Analyzing & Saving...";
 
             try {
-                const res = await fetch("/api/records/analyze-and-save", {
+                const res = await fetch(`${API_BASE}/records/analyze-and-save`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
