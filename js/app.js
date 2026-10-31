@@ -41,6 +41,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const userNameDisplay = document.getElementById("user-name-display");
     const userRoleBadge = document.getElementById("user-role-badge");
     const userAvatarText = document.getElementById("user-avatar-text");
+    const tabNavDashboard = document.getElementById("tab-nav-dashboard");
+    const tabNavChat = document.getElementById("tab-nav-chatbot");
     const tabNavUsers = document.getElementById("tab-nav-users");
     const navBrandLogo = document.getElementById("nav-brand-logo");
 
@@ -234,6 +236,64 @@ document.addEventListener("DOMContentLoaded", () => {
         if (loginUsernameInput) loginUsernameInput.focus();
     }
 
+    // =========================================================================
+    // FEATURE & PAGE ACCESS PERMISSION CONTROL
+    // =========================================================================
+    function applyUserPermissions() {
+        if (!currentUser) return;
+        const perms = Array.isArray(currentUser.permissions) ? currentUser.permissions : [];
+        const isAdmin = currentUser.role === "admin";
+
+        const hasDashboard = isAdmin || perms.includes("dashboard");
+        const hasChatbot = isAdmin || perms.includes("chatbot");
+        const hasReports = isAdmin || perms.includes("reports");
+        const hasUploadSql = isAdmin || perms.includes("upload_sql");
+        const hasUserControl = isAdmin || perms.includes("user_control");
+        const hasClearDb = isAdmin || perms.includes("clear_db");
+
+        // 1. Dashboard View & Navbar Tab
+        if (tabNavDashboard) {
+            tabNavDashboard.style.display = hasDashboard ? "flex" : "none";
+        }
+
+        // 2. Chatbot View & Navbar Tab & Hero Action Button
+        if (tabNavChat) {
+            tabNavChat.style.display = hasChatbot ? "flex" : "none";
+        }
+        if (dashBtnGotoChat) {
+            dashBtnGotoChat.style.display = hasChatbot ? "inline-flex" : "none";
+        }
+
+        // 3. User Control Nav Tab
+        if (tabNavUsers) {
+            tabNavUsers.style.display = hasUserControl ? "flex" : "none";
+        }
+
+        // 4. SQL Upload / Dump Section & Buttons
+        // Dashboard banner button "📁 Upload .SQL"
+        if (dashBtnUploadSql) {
+            dashBtnUploadSql.style.display = hasUploadSql ? "inline-flex" : "none";
+        }
+        // SQLite modal "Upload SQL Dump" tab
+        if (tabUpload) {
+            tabUpload.style.display = hasUploadSql ? "inline-flex" : "none";
+        }
+        // SQLite modal "Ingest 3 SQL Dumps" button
+        if (btnModalImportAll) {
+            btnModalImportAll.style.display = hasUploadSql ? "inline-flex" : "none";
+        }
+
+        // 5. Database Wipe / Clear Elements
+        if (btnModalClearDb) {
+            btnModalClearDb.style.display = hasClearDb ? "inline-flex" : "none";
+        }
+
+        // 6. Report Generation Button
+        if (btnGenerateChatReport) {
+            btnGenerateChatReport.style.display = hasReports ? "inline-flex" : "none";
+        }
+    }
+
     function setupAuthenticatedUser() {
         loginOverlay.style.display = "none";
         appShell.style.display = "flex";
@@ -259,19 +319,21 @@ document.addEventListener("DOMContentLoaded", () => {
             dashWelcomeTitle.textContent = `Welcome back, ${currentUser.full_name || currentUser.username}`;
         }
 
-        // Role-based visibility for User Control Nav link
-        const perms = currentUser.permissions || [];
-        const hasUserControl = currentUser.role === "admin" || perms.includes("user_control");
-        if (tabNavUsers) {
-            tabNavUsers.style.display = hasUserControl ? "flex" : "none";
-        }
+        // Apply full feature permissions
+        applyUserPermissions();
 
         // Load Initial Dashboard and Chat Sessions
         loadDashboardData();
         loadChatSessions();
 
-        // Switch to Dashboard by default
-        switchView("dashboard");
+        // Switch to initial permitted view (dashboard if allowed, else chatbot)
+        const perms = currentUser.permissions || [];
+        const hasDashboard = currentUser.role === "admin" || perms.includes("dashboard");
+        if (hasDashboard) {
+            switchView("dashboard");
+        } else {
+            switchView("chatbot");
+        }
     }
 
     // Handle Login Form Submit
@@ -352,6 +414,21 @@ document.addEventListener("DOMContentLoaded", () => {
     // VIEW ROUTING & NAVBAR SWITCHER
     // =========================================================================
     function switchView(viewName) {
+        const perms = currentUser ? (currentUser.permissions || []) : [];
+        const isAdmin = currentUser && currentUser.role === "admin";
+
+        if (viewName === "dashboard" && !isAdmin && !perms.includes("dashboard")) {
+            showToast("Access Denied: You do not have permission to view the Dashboard.", "error");
+            if (isAdmin || perms.includes("chatbot")) switchView("chatbot");
+            return;
+        }
+
+        if (viewName === "chatbot" && !isAdmin && !perms.includes("chatbot")) {
+            showToast("Access Denied: You do not have permission to use the Chatbot.", "error");
+            if (isAdmin || perms.includes("dashboard")) switchView("dashboard");
+            return;
+        }
+
         // Update nav button active states
         navTabBtns.forEach(btn => {
             if (btn.dataset.view === viewName) {
@@ -1224,7 +1301,14 @@ document.addEventListener("DOMContentLoaded", () => {
                         const err = await res.json();
                         throw new Error(err.detail || "Failed to update user");
                     }
+                    const updateData = await res.json();
                     showToast(`User ${username} updated successfully!`, "success");
+
+                    // If currently logged-in user is updated, refresh their permissions and UI immediately
+                    if (currentUser && (currentUser.id === parseInt(uid) || currentUser.username.toLowerCase() === username.toLowerCase())) {
+                        currentUser = updateData.user || { ...currentUser, ...payload };
+                        setupAuthenticatedUser();
+                    }
                 }
 
                 userModalBackdrop.classList.remove("open");
@@ -1314,7 +1398,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (tabRecords) tabRecords.addEventListener("click", () => { showTab(tabRecords, tableViewRecords); loadDbRecords(); });
     if (tabHistory) tabHistory.addEventListener("click", () => { showTab(tabHistory, tableViewHistory); loadDbHistory(); });
-    if (tabUpload) tabUpload.addEventListener("click", () => showTab(tabUpload, tableViewUpload));
+    if (tabUpload) {
+        tabUpload.addEventListener("click", () => {
+            const perms = currentUser ? (currentUser.permissions || []) : [];
+            const isAdmin = currentUser && currentUser.role === "admin";
+            if (!isAdmin && !perms.includes("upload_sql")) {
+                showToast("Access Denied: You do not have permission to upload SQL dumps.", "error");
+                return;
+            }
+            showTab(tabUpload, tableViewUpload);
+        });
+    }
     if (tabAdd) tabAdd.addEventListener("click", () => showTab(tabAdd, tableViewAdd));
 
     async function loadDbRecords() {
@@ -1421,11 +1515,26 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnCancelIntake) btnCancelIntake.addEventListener("click", () => intakeModalBackdrop.classList.remove("open"));
 
     if (dashBtnUploadSql && inputFileSql) {
-        dashBtnUploadSql.addEventListener("click", () => inputFileSql.click());
+        dashBtnUploadSql.addEventListener("click", () => {
+            const perms = currentUser ? (currentUser.permissions || []) : [];
+            const isAdmin = currentUser && currentUser.role === "admin";
+            if (!isAdmin && !perms.includes("upload_sql")) {
+                showToast("Access Denied: You do not have permission for SQL Upload & Ingestion.", "error");
+                return;
+            }
+            inputFileSql.click();
+        });
     }
 
     if (inputFileSql) {
         inputFileSql.addEventListener("change", async (e) => {
+            const perms = currentUser ? (currentUser.permissions || []) : [];
+            const isAdmin = currentUser && currentUser.role === "admin";
+            if (!isAdmin && !perms.includes("upload_sql")) {
+                showToast("Access Denied: You do not have permission for SQL Upload & Ingestion.", "error");
+                inputFileSql.value = "";
+                return;
+            }
             const file = e.target.files[0];
             if (!file) return;
             showToast(`Uploading and analyzing ${file.name}...`, "info");
@@ -1433,8 +1542,15 @@ document.addEventListener("DOMContentLoaded", () => {
             formData.append("file", file);
 
             try {
-                const res = await fetch(`${API_BASE}/upload-sql-backup`, { method: "POST", body: formData });
-                if (!res.ok) throw new Error("Upload failed");
+                const res = await fetch(`${API_BASE}/upload-sql-backup`, {
+                    method: "POST",
+                    headers: getAuthHeaders(),
+                    body: formData
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.detail || "Upload failed");
+                }
                 const data = await res.json();
                 showToast(`✅ ${file.name} ingested successfully into ${data.department}!`, "success");
                 loadDashboardData();
@@ -1446,10 +1562,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Modal SQL Dropzone logic
     if (btnModalBrowseFile && modalFileInput) {
-        btnModalBrowseFile.addEventListener("click", () => modalFileInput.click());
+        btnModalBrowseFile.addEventListener("click", () => {
+            const perms = currentUser ? (currentUser.permissions || []) : [];
+            const isAdmin = currentUser && currentUser.role === "admin";
+            if (!isAdmin && !perms.includes("upload_sql")) {
+                showToast("Access Denied: SQL upload permission required.", "error");
+                return;
+            }
+            modalFileInput.click();
+        });
     }
     if (modalDropzone && modalFileInput) {
-        modalDropzone.addEventListener("click", () => modalFileInput.click());
+        modalDropzone.addEventListener("click", () => {
+            const perms = currentUser ? (currentUser.permissions || []) : [];
+            const isAdmin = currentUser && currentUser.role === "admin";
+            if (!isAdmin && !perms.includes("upload_sql")) {
+                showToast("Access Denied: SQL upload permission required.", "error");
+                return;
+            }
+            modalFileInput.click();
+        });
     }
     if (modalFileInput) {
         modalFileInput.addEventListener("change", (e) => {
