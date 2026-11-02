@@ -488,13 +488,108 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // =========================================================================
-    // DASHBOARD LIVE METRICS & ANALYTICAL DATA VISUALIZATIONS
+    // DASHBOARD LIVE METRICS & ANALYTICAL DATA VISUALIZATIONS (DUAL-ENGINE)
     // =========================================================================
     const deptCharts = { cctv: null, food: null, transport: null };
+    let lastDashboardData = null;
+
+    // Native High-Performance HTML5 Canvas Bar Chart Fallback (Guaranteed to render under any network / CSP / firewall)
+    function drawNativeBarChart(canvasId, config) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const w = (rect.width > 20 ? rect.width : 340);
+        const h = (rect.height > 20 ? rect.height : 190);
+
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        const ctx = canvas.getContext("2d");
+        ctx.resetTransform && ctx.resetTransform();
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, w, h);
+
+        const labels = config.labels || [];
+        const values = config.values || [];
+        const colors = config.colors || [];
+        const maxVal = Math.max(...values, 10);
+
+        const padBottom = 34;
+        const padTop = 18;
+        const padLeft = 34;
+        const padRight = 14;
+        const chartW = w - padLeft - padRight;
+        const chartH = h - padTop - padBottom;
+
+        // Background subtle grid
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 4; i++) {
+            const y = padTop + (chartH / 4) * i;
+            ctx.beginPath();
+            ctx.moveTo(padLeft, y);
+            ctx.lineTo(w - padRight, y);
+            ctx.stroke();
+
+            const val = Math.round(maxVal - (maxVal / 4) * i);
+            ctx.fillStyle = "#64748b";
+            ctx.font = "10px 'JetBrains Mono', monospace";
+            ctx.textAlign = "right";
+            ctx.fillText(val, padLeft - 6, y + 3);
+        }
+
+        const count = labels.length;
+        const barWidth = Math.min(38, Math.max(16, (chartW / count) * 0.62));
+        const gap = chartW / count;
+
+        for (let i = 0; i < count; i++) {
+            const val = values[i] || 0;
+            const barH = Math.max(4, (val / maxVal) * chartH);
+            const x = padLeft + (i * gap) + (gap - barWidth) / 2;
+            const y = padTop + chartH - barH;
+            const color = colors[i] || "#06b6d4";
+
+            // Bar fill and border
+            ctx.fillStyle = color + "cc";
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+
+            const r = Math.min(6, barH / 2, barWidth / 2);
+            ctx.beginPath();
+            ctx.moveTo(x, y + barH);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.lineTo(x + barWidth - r, y);
+            ctx.quadraticCurveTo(x + barWidth, y, x + barWidth, y + r);
+            ctx.lineTo(x + barWidth, y + barH);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Value text on top
+            ctx.fillStyle = "#f8fafc";
+            ctx.font = "bold 10px 'JetBrains Mono', monospace";
+            ctx.textAlign = "center";
+            ctx.fillText(val, x + barWidth / 2, Math.max(11, y - 5));
+
+            // X-axis label text
+            ctx.fillStyle = "#94a3b8";
+            ctx.font = "10px 'Plus Jakarta Sans', sans-serif";
+            const lbl = labels[i].length > 10 ? labels[i].slice(0, 8) + ".." : labels[i];
+            ctx.fillText(lbl, x + barWidth / 2, h - 10);
+        }
+    }
 
     function createOrUpdateBarChart(chartId, chartConfig) {
         const canvas = document.getElementById(chartId);
-        if (!canvas || typeof Chart === "undefined") return;
+        if (!canvas) return;
+
+        // If Chart.js is not loaded yet or blocked, use native canvas bar renderer immediately!
+        if (typeof Chart === "undefined") {
+            drawNativeBarChart(chartId, chartConfig);
+            return;
+        }
+
         const ctx = canvas.getContext("2d");
         const deptKey = chartId.replace("chart-", "");
 
@@ -508,79 +603,85 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        deptCharts[deptKey] = new Chart(ctx, {
-            type: "bar",
-            data: {
-                labels: chartConfig.labels,
-                datasets: [{
-                    data: chartConfig.values,
-                    backgroundColor: chartConfig.colors.map(c => c + "cc"),
-                    hoverBackgroundColor: chartConfig.colors,
-                    borderColor: chartConfig.colors,
-                    borderWidth: 1.5,
-                    borderRadius: 6,
-                    borderSkipped: false,
-                    barPercentage: 0.65,
-                    categoryPercentage: 0.8,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: {
-                    duration: 650,
-                    easing: "easeOutQuart"
+        try {
+            deptCharts[deptKey] = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: chartConfig.labels,
+                    datasets: [{
+                        data: chartConfig.values,
+                        backgroundColor: chartConfig.colors.map(c => c + "cc"),
+                        hoverBackgroundColor: chartConfig.colors,
+                        borderColor: chartConfig.colors,
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        barPercentage: 0.65,
+                        categoryPercentage: 0.8,
+                    }]
                 },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: "rgba(15, 23, 42, 0.95)",
-                        titleColor: "#f8fafc",
-                        bodyColor: "#94a3b8",
-                        borderColor: "rgba(255, 255, 255, 0.12)",
-                        borderWidth: 1,
-                        padding: 10,
-                        cornerRadius: 8,
-                        displayColors: true,
-                        callbacks: {
-                            label: function(context) {
-                                return ` ${context.parsed.y} ${chartConfig.unit || "records"}`;
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 650,
+                        easing: "easeOutQuart"
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: "rgba(15, 23, 42, 0.95)",
+                            titleColor: "#f8fafc",
+                            bodyColor: "#94a3b8",
+                            borderColor: "rgba(255, 255, 255, 0.12)",
+                            borderWidth: 1,
+                            padding: 10,
+                            cornerRadius: 8,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.parsed.y} ${chartConfig.unit || "records"}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: "#94a3b8",
+                                font: { family: "'Plus Jakarta Sans', sans-serif", size: 10.5, weight: "500" }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: "rgba(255, 255, 255, 0.05)" },
+                            ticks: {
+                                color: "#64748b",
+                                font: { family: "'JetBrains Mono', monospace", size: 10 },
+                                precision: 0
                             }
                         }
                     }
-                },
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: {
-                            color: "#94a3b8",
-                            font: { family: "'Plus Jakarta Sans', sans-serif", size: 10.5, weight: "500" }
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: "rgba(255, 255, 255, 0.05)" },
-                        ticks: {
-                            color: "#64748b",
-                            font: { family: "'JetBrains Mono', monospace", size: 10 },
-                            precision: 0
-                        }
-                    }
                 }
-            }
-        });
+            });
+        } catch (e) {
+            console.warn("Chart.js init fallback to native canvas:", e);
+            drawNativeBarChart(chartId, chartConfig);
+        }
     }
 
     function renderDepartmentCharts(data) {
         if (!data) return;
+        lastDashboardData = data;
 
         // 1. CCTV Chart
         const cctvChartData = data.cctv && data.cctv.chart ? data.cctv.chart : {
             labels: ["Cameras", "NVR Units", "Biometrics", "Switches", "Open Tickets"],
-            values: [data.cctv.cameras || 69, data.cctv.nvrs || 40, data.cctv.biometrics || 40, data.cctv.switches || 11, data.cctv.open_tickets || 8],
+            values: [data.cctv.cameras || 68, data.cctv.nvrs || 40, data.cctv.biometrics || 40, data.cctv.switches || 11, data.cctv.open_tickets || 8],
             colors: ["#06b6d4", "#10b981", "#8b5cf6", "#6366f1", "#f43f5e"],
             unit: "devices",
-            summary: `${data.cctv.cameras || 69} Cameras online across campus, ${data.cctv.nvrs || 40} NVRs active, ${data.cctv.open_tickets || 8} open tickets in queue.`
+            summary: `${data.cctv.cameras || 68} Cameras online across campus, ${data.cctv.nvrs || 40} NVRs active, ${data.cctv.open_tickets || 8} open tickets in queue.`
         };
         createOrUpdateBarChart("chart-cctv", cctvChartData);
         const insightCctv = document.getElementById("insight-text-cctv");
@@ -610,6 +711,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const insightTransport = document.getElementById("insight-text-transport");
         if (insightTransport && transportChartData.summary) insightTransport.textContent = transportChartData.summary;
     }
+
+    // Window resize handler to maintain crisp sharp bar charts across zoom and DPR changes
+    window.addEventListener("resize", () => {
+        if (lastDashboardData) {
+            renderDepartmentCharts(lastDashboardData);
+        }
+    });
 
     async function loadDashboardData() {
         try {

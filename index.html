@@ -22,10 +22,16 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <!-- Chart.js for Analytical Data Visualizations -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Chart.js for Analytical Data Visualizations (Local Bundled + CDN Fallback) -->
+    <script src="./static/js/chart.umd.min.js?v=4.4.1"></script>
+    <script>
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\\/script>');
+        }
+    </script>
     
     <!-- Stylesheet (Relative path supports root / and subpath /ai-bot/) -->
-    <link rel="stylesheet" href="./static/css/style.css">
+    <link rel="stylesheet" href="./static/css/style.css?v=2.2.1">
 </head>
 <body class="dark-theme">
 
@@ -1004,6 +1010,6 @@ Dome camera in Library 2nd floor, IP 10.90.15.42, 4MP, Hikvision DS-2CD2143G0, s
     <div class="toast-container" id="toast-container"></div>
 
     <!-- Main JavaScript App Logic (Relative path supports root / and subpath /ai-bot/) -->
-    <script src="./static/js/app.js"></script>
+    <script src="./static/js/app.js?v=2.2.1"></script>
 </body>
 </html>
