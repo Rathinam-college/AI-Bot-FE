@@ -378,18 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Demo Accounts Quick Sign-In Pills
-    document.querySelectorAll(".btn-demo-pill").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const user = btn.dataset.user;
-            const pass = btn.dataset.pass;
-            if (loginUsernameInput && loginPasswordInput) {
-                loginUsernameInput.value = user;
-                loginPasswordInput.value = pass;
-                if (loginForm) loginForm.dispatchEvent(new Event("submit"));
-            }
-        });
-    });
+
 
     // Handle Logout
     if (btnNavbarLogout) {
