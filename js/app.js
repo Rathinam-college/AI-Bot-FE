@@ -488,8 +488,129 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // =========================================================================
-    // DASHBOARD LIVE METRICS & SUMMARIES
+    // DASHBOARD LIVE METRICS & ANALYTICAL DATA VISUALIZATIONS
     // =========================================================================
+    const deptCharts = { cctv: null, food: null, transport: null };
+
+    function createOrUpdateBarChart(chartId, chartConfig) {
+        const canvas = document.getElementById(chartId);
+        if (!canvas || typeof Chart === "undefined") return;
+        const ctx = canvas.getContext("2d");
+        const deptKey = chartId.replace("chart-", "");
+
+        if (deptCharts[deptKey]) {
+            deptCharts[deptKey].data.labels = chartConfig.labels;
+            deptCharts[deptKey].data.datasets[0].data = chartConfig.values;
+            deptCharts[deptKey].data.datasets[0].backgroundColor = chartConfig.colors.map(c => c + "cc");
+            deptCharts[deptKey].data.datasets[0].hoverBackgroundColor = chartConfig.colors;
+            deptCharts[deptKey].data.datasets[0].borderColor = chartConfig.colors;
+            deptCharts[deptKey].update();
+            return;
+        }
+
+        deptCharts[deptKey] = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: chartConfig.labels,
+                datasets: [{
+                    data: chartConfig.values,
+                    backgroundColor: chartConfig.colors.map(c => c + "cc"),
+                    hoverBackgroundColor: chartConfig.colors,
+                    borderColor: chartConfig.colors,
+                    borderWidth: 1.5,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                    barPercentage: 0.65,
+                    categoryPercentage: 0.8,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 650,
+                    easing: "easeOutQuart"
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: "rgba(15, 23, 42, 0.95)",
+                        titleColor: "#f8fafc",
+                        bodyColor: "#94a3b8",
+                        borderColor: "rgba(255, 255, 255, 0.12)",
+                        borderWidth: 1,
+                        padding: 10,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                return ` ${context.parsed.y} ${chartConfig.unit || "records"}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: "#94a3b8",
+                            font: { family: "'Plus Jakarta Sans', sans-serif", size: 10.5, weight: "500" }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: "rgba(255, 255, 255, 0.05)" },
+                        ticks: {
+                            color: "#64748b",
+                            font: { family: "'JetBrains Mono', monospace", size: 10 },
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderDepartmentCharts(data) {
+        if (!data) return;
+
+        // 1. CCTV Chart
+        const cctvChartData = data.cctv && data.cctv.chart ? data.cctv.chart : {
+            labels: ["Cameras", "NVR Units", "Biometrics", "Switches", "Open Tickets"],
+            values: [data.cctv.cameras || 69, data.cctv.nvrs || 40, data.cctv.biometrics || 40, data.cctv.switches || 11, data.cctv.open_tickets || 8],
+            colors: ["#06b6d4", "#10b981", "#8b5cf6", "#6366f1", "#f43f5e"],
+            unit: "devices",
+            summary: `${data.cctv.cameras || 69} Cameras online across campus, ${data.cctv.nvrs || 40} NVRs active, ${data.cctv.open_tickets || 8} open tickets in queue.`
+        };
+        createOrUpdateBarChart("chart-cctv", cctvChartData);
+        const insightCctv = document.getElementById("insight-text-cctv");
+        if (insightCctv && cctvChartData.summary) insightCctv.textContent = cctvChartData.summary;
+
+        // 2. Food Chart
+        const foodChartData = data.food && data.food.chart ? data.food.chart : {
+            labels: ["Menu Items", "Stock Levels", "Purchase Orders", "Material Reqs", "Vendors"],
+            values: [data.food.menu_items || 311, data.food.inventory_stock || 574, data.food.purchase_requests || 844, data.food.material_requests || 481, data.food.vendors || 40],
+            colors: ["#10b981", "#06b6d4", "#f59e0b", "#8b5cf6", "#ec4899"],
+            unit: "records",
+            summary: `${data.food.menu_items || 311} Dishes registered, ${data.food.purchase_requests || 844} Purchase Orders processed, ${data.food.vendors || 40} active suppliers.`
+        };
+        createOrUpdateBarChart("chart-food", foodChartData);
+        const insightFood = document.getElementById("insight-text-food");
+        if (insightFood && foodChartData.summary) insightFood.textContent = foodChartData.summary;
+
+        // 3. Transport Chart
+        const transportChartData = data.transport && data.transport.chart ? data.transport.chart : {
+            labels: ["Active Buses", "Drivers", "Fuel Logs", "Service Renewals", "Avg Seats/Bus"],
+            values: [data.transport.buses || 5, data.transport.drivers || 5, data.transport.fuel_logs || 29, data.transport.renewals || 29, data.transport.avg_capacity || 52],
+            colors: ["#f59e0b", "#10b981", "#06b6d4", "#8b5cf6", "#3b82f6"],
+            unit: "entries",
+            summary: `${data.transport.buses || 5} Campus buses active, ${data.transport.fuel_logs || 29} fuel logs tracked, ${data.transport.renewals || 29} compliance renewals.`
+        };
+        createOrUpdateBarChart("chart-transport", transportChartData);
+        const insightTransport = document.getElementById("insight-text-transport");
+        if (insightTransport && transportChartData.summary) insightTransport.textContent = transportChartData.summary;
+    }
+
     async function loadDashboardData() {
         try {
             const res = await fetch(`${API_BASE}/dashboard/summary`);
@@ -502,7 +623,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // CCTV Cameras
             const elCameras = document.getElementById("dash-cctv-cameras");
-            if (elCameras) elCameras.textContent = data.cctv.cameras || 68;
+            if (elCameras) elCameras.textContent = data.cctv.cameras || 69;
 
             // Food Items
             const elFood = document.getElementById("dash-food-items");
@@ -520,16 +641,20 @@ document.addEventListener("DOMContentLoaded", () => {
             const elUsers = document.getElementById("dash-users-count");
             if (elUsers) elUsers.textContent = data.system.users_count || 3;
 
-            // Department cards
+            // Department cards metric chips
             const cCam = document.getElementById("card-cctv-cam");
-            if (cCam) cCam.textContent = data.cctv.cameras || 68;
+            if (cCam) cCam.textContent = data.cctv.cameras || 69;
             const cNvr = document.getElementById("card-cctv-nvr");
             if (cNvr) cNvr.textContent = data.cctv.nvrs || 40;
             const cBio = document.getElementById("card-cctv-bio");
             if (cBio) cBio.textContent = data.cctv.biometrics || 40;
+            const cSw = document.getElementById("card-cctv-sw");
+            if (cSw) cSw.textContent = data.cctv.switches || 11;
 
             const fItems = document.getElementById("card-food-items");
             if (fItems) fItems.textContent = data.food.menu_items || 311;
+            const fStock = document.getElementById("card-food-stock");
+            if (fStock) fStock.textContent = data.food.inventory_stock || 574;
             const fPr = document.getElementById("card-food-pr");
             if (fPr) fPr.textContent = data.food.purchase_requests || 844;
             const fVen = document.getElementById("card-food-vendors");
@@ -537,10 +662,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const tBus = document.getElementById("card-trans-buses");
             if (tBus) tBus.textContent = data.transport.buses || 5;
+            const tDrivers = document.getElementById("card-trans-drivers");
+            if (tDrivers) tDrivers.textContent = data.transport.drivers || data.transport.buses || 5;
             const tFuel = document.getElementById("card-trans-fuel");
             if (tFuel) tFuel.textContent = data.transport.fuel_logs || 29;
             const tRenew = document.getElementById("card-trans-renew");
             if (tRenew) tRenew.textContent = data.transport.renewals || 29;
+
+            // Status badges
+            const bCctv = document.getElementById("badge-cctv-status");
+            if (bCctv && data.cctv.status) bCctv.textContent = data.cctv.status.split(" ")[0];
+            const bFood = document.getElementById("badge-food-status");
+            if (bFood && data.food.status) bFood.textContent = data.food.status.split(" ")[0];
+            const bTrans = document.getElementById("badge-trans-status");
+            if (bTrans && data.transport.status) bTrans.textContent = data.transport.status.split(" ")[0];
+
+            // Render Dynamic Analytical Bar Charts
+            renderDepartmentCharts(data);
 
             // Header badge values
             const valInserted = document.getElementById("val-inserted");

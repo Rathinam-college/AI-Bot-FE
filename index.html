@@ -21,6 +21,9 @@
     <!-- Marked.js for Markdown parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
+    <!-- Chart.js for Analytical Data Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
     <!-- Stylesheet (Relative path supports root / and subpath /ai-bot/) -->
     <link rel="stylesheet" href="./static/css/style.css">
 </head>
@@ -263,83 +266,139 @@
                     <!-- Department Drill-Down Cards Grid -->
                     <div class="dept-cards-grid">
                         <!-- CCTV Department -->
-                        <div class="dept-detail-card">
+                        <div class="dept-detail-card" id="dept-card-cctv">
                             <div class="dept-card-top">
                                 <div class="dept-brand-group">
-                                    <span class="dept-badge-icon">📹</span>
+                                    <span class="dept-badge-icon" style="background: rgba(6, 182, 212, 0.12); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.25);">📹</span>
                                     <div>
-                                        <h3 class="dept-card-title">CCTV Surveillance & Safety</h3>
-                                        <p style="font-size:0.75rem; color:var(--text-secondary);">Campus security, camera health, and biometric access</p>
+                                        <div class="dept-title-row">
+                                            <h3 class="dept-card-title">CCTV Surveillance & Safety</h3>
+                                            <span class="dept-status-indicator role-member" id="badge-cctv-status">Operational</span>
+                                        </div>
+                                        <p class="dept-card-desc">Campus security, camera health, and biometric access</p>
                                     </div>
                                 </div>
-                                <span class="dept-status-indicator role-member">Operational</span>
                             </div>
+                            
+                            <!-- Key Metrics Highlights Row -->
                             <div class="dept-metrics-row">
                                 <div class="dept-metric-col">
-                                    <span class="dept-metric-num" id="card-cctv-cam">68</span>
+                                    <span class="dept-metric-num" id="card-cctv-cam">69</span>
                                     <span class="dept-metric-label">Cameras</span>
                                 </div>
                                 <div class="dept-metric-col">
                                     <span class="dept-metric-num" id="card-cctv-nvr">40</span>
-                                    <span class="dept-metric-label">NVR Storage</span>
+                                    <span class="dept-metric-label">NVR Units</span>
                                 </div>
                                 <div class="dept-metric-col">
                                     <span class="dept-metric-num" id="card-cctv-bio">40</span>
                                     <span class="dept-metric-label">Biometrics</span>
                                 </div>
+                                <div class="dept-metric-col">
+                                    <span class="dept-metric-num" id="card-cctv-sw">11</span>
+                                    <span class="dept-metric-label">Switches</span>
+                                </div>
                             </div>
+
+                            <!-- Interactive Bar Chart Container -->
+                            <div class="dept-chart-section">
+                                <div class="dept-chart-header">
+                                    <span class="dept-chart-title">System Health & Device Distribution</span>
+                                    <span class="dept-chart-badge" id="badge-cctv-online">98.5% Online</span>
+                                </div>
+                                <div class="dept-chart-canvas-box">
+                                    <canvas id="chart-cctv"></canvas>
+                                </div>
+                                <div class="dept-chart-insight" id="insight-cctv">
+                                    <span class="insight-dot" style="background:#06b6d4;"></span>
+                                    <span class="insight-text" id="insight-text-cctv">69 Cameras online across campus, 40 NVRs active, 8 open tickets.</span>
+                                </div>
+                            </div>
+
                             <button type="button" class="btn-dept-ask" data-query="Give me a complete breakdown of CCTV camera locations, online health status, and switches.">
                                 💬 Ask Chatbot about CCTV Status &rarr;
                             </button>
                         </div>
 
                         <!-- Food Department -->
-                        <div class="dept-detail-card">
+                        <div class="dept-detail-card" id="dept-card-food">
                             <div class="dept-card-top">
                                 <div class="dept-brand-group">
-                                    <span class="dept-badge-icon">🍽️</span>
+                                    <span class="dept-badge-icon" style="background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.25);">🍽️</span>
                                     <div>
-                                        <h3 class="dept-card-title">Food & Catering Management</h3>
-                                        <p style="font-size:0.75rem; color:var(--text-secondary);">Cafeteria stock, material requests, and vendor invoices</p>
+                                        <div class="dept-title-row">
+                                            <h3 class="dept-card-title">Food & Catering Management</h3>
+                                            <span class="dept-status-indicator" id="badge-food-status" style="background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.3);">Active</span>
+                                        </div>
+                                        <p class="dept-card-desc">Cafeteria stock, material requests, and vendor invoices</p>
                                     </div>
                                 </div>
-                                <span class="dept-status-indicator" style="background:rgba(16,185,129,0.15); color:#6ee7b7;">Active</span>
                             </div>
+
+                            <!-- Key Metrics Highlights Row -->
                             <div class="dept-metrics-row">
                                 <div class="dept-metric-col">
                                     <span class="dept-metric-num" id="card-food-items">311</span>
                                     <span class="dept-metric-label">Food Items</span>
                                 </div>
                                 <div class="dept-metric-col">
+                                    <span class="dept-metric-num" id="card-food-stock">574</span>
+                                    <span class="dept-metric-label">Stock Levels</span>
+                                </div>
+                                <div class="dept-metric-col">
                                     <span class="dept-metric-num" id="card-food-pr">844</span>
-                                    <span class="dept-metric-label">Purchase Orders</span>
+                                    <span class="dept-metric-label">Orders</span>
                                 </div>
                                 <div class="dept-metric-col">
                                     <span class="dept-metric-num" id="card-food-vendors">40</span>
                                     <span class="dept-metric-label">Vendors</span>
                                 </div>
                             </div>
+
+                            <!-- Interactive Bar Chart Container -->
+                            <div class="dept-chart-section">
+                                <div class="dept-chart-header">
+                                    <span class="dept-chart-title">Supply Chain & Inventory Breakdown</span>
+                                    <span class="dept-chart-badge" id="badge-food-stock-health" style="background:rgba(16,185,129,0.15); color:#10b981;">Balanced</span>
+                                </div>
+                                <div class="dept-chart-canvas-box">
+                                    <canvas id="chart-food"></canvas>
+                                </div>
+                                <div class="dept-chart-insight" id="insight-food">
+                                    <span class="insight-dot" style="background:#10b981;"></span>
+                                    <span class="insight-text" id="insight-text-food">311 Dishes registered, 844 Purchase Orders processed, 40 active suppliers.</span>
+                                </div>
+                            </div>
+
                             <button type="button" class="btn-dept-ask" data-query="What is the current inventory stock level, top purchase requests, and active food vendors?">
                                 💬 Ask Chatbot about Food & Stock &rarr;
                             </button>
                         </div>
 
                         <!-- Transport Department -->
-                        <div class="dept-detail-card">
+                        <div class="dept-detail-card" id="dept-card-transport">
                             <div class="dept-card-top">
                                 <div class="dept-brand-group">
-                                    <span class="dept-badge-icon">🚌</span>
+                                    <span class="dept-badge-icon" style="background: rgba(245, 158, 11, 0.12); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.25);">🚌</span>
                                     <div>
-                                        <h3 class="dept-card-title">Campus Transport Fleet</h3>
-                                        <p style="font-size:0.75rem; color:var(--text-secondary);">Campus buses, drivers, fuel logs, and service renewals</p>
+                                        <div class="dept-title-row">
+                                            <h3 class="dept-card-title">Campus Transport Fleet</h3>
+                                            <span class="dept-status-indicator role-manager" id="badge-trans-status">Active Fleet</span>
+                                        </div>
+                                        <p class="dept-card-desc">Campus buses, drivers, fuel logs, and service renewals</p>
                                     </div>
                                 </div>
-                                <span class="dept-status-indicator role-manager">Active Fleet</span>
                             </div>
+
+                            <!-- Key Metrics Highlights Row -->
                             <div class="dept-metrics-row">
                                 <div class="dept-metric-col">
                                     <span class="dept-metric-num" id="card-trans-buses">5</span>
                                     <span class="dept-metric-label">Buses</span>
+                                </div>
+                                <div class="dept-metric-col">
+                                    <span class="dept-metric-num" id="card-trans-drivers">5</span>
+                                    <span class="dept-metric-label">Drivers</span>
                                 </div>
                                 <div class="dept-metric-col">
                                     <span class="dept-metric-num" id="card-trans-fuel">29</span>
@@ -350,6 +409,22 @@
                                     <span class="dept-metric-label">Renewals</span>
                                 </div>
                             </div>
+
+                            <!-- Interactive Bar Chart Container -->
+                            <div class="dept-chart-section">
+                                <div class="dept-chart-header">
+                                    <span class="dept-chart-title">Fleet Operations & Compliance Activity</span>
+                                    <span class="dept-chart-badge" id="badge-trans-health" style="background:rgba(245,158,11,0.15); color:#f59e0b;">100% Active</span>
+                                </div>
+                                <div class="dept-chart-canvas-box">
+                                    <canvas id="chart-transport"></canvas>
+                                </div>
+                                <div class="dept-chart-insight" id="insight-transport">
+                                    <span class="insight-dot" style="background:#f59e0b;"></span>
+                                    <span class="insight-text" id="insight-text-transport">5 Campus buses active, 29 fuel logs tracked, 29 compliance renewals.</span>
+                                </div>
+                            </div>
+
                             <button type="button" class="btn-dept-ask" data-query="List all 5 campus buses with their drivers, contact numbers, seating capacities, and fuel entries.">
                                 💬 Ask Chatbot about Transport Fleet &rarr;
                             </button>
