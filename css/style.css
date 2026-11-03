@@ -2362,3 +2362,306 @@ body {
     margin: 40px auto;
 }
 
+
+
+/* ==========================================================================
+   CYBER-OPS EXECUTIVE AMBER THEME (MATCHING VISUAL COMMAND MOCKUP)
+   ========================================================================== */
+
+/* Cybernetic Circuit Grid Background */
+body.dark-theme {
+    background-color: #070a14 !important;
+    background-image: 
+        radial-gradient(ellipse at 85% 10%, rgba(249, 115, 22, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 15% 90%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(249, 115, 22, 0.04) 0%, transparent 60%),
+        linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px) !important;
+    background-size: 100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px !important;
+    background-position: 0 0, 0 0, 0 0, -1px -1px, -1px -1px !important;
+}
+
+/* Glowing Orange Brand Logo */
+.nav-brand-logo {
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+    box-shadow: 0 0 16px rgba(249, 115, 22, 0.5) !important;
+}
+
+.nav-brand-tag {
+    background: rgba(249, 115, 22, 0.12) !important;
+    color: #fdba74 !important;
+    border: 1px solid rgba(249, 115, 22, 0.35) !important;
+}
+
+/* Active Navbar Tab - Warm Sunset Orange Gradient */
+.nav-tab-btn.active {
+    background: linear-gradient(135deg, #ea580c 0%, #f97316 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 18px rgba(249, 115, 22, 0.45) !important;
+    border-radius: var(--radius-sm);
+}
+
+/* Sync Data Button - Radiant Amber Pill */
+#btn-refresh-sync {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.18) 0%, rgba(234, 88, 12, 0.28) 100%) !important;
+    border: 1px solid rgba(249, 115, 22, 0.6) !important;
+    color: #fb923c !important;
+    box-shadow: 0 0 16px rgba(249, 115, 22, 0.3) !important;
+    border-radius: var(--radius-sm) !important;
+    font-weight: 700 !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+#btn-refresh-sync:hover {
+    background: linear-gradient(135deg, #ea580c 0%, #f97316 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 24px rgba(249, 115, 22, 0.65) !important;
+    transform: translateY(-1px);
+}
+
+/* User Capsule */
+.user-avatar-circle {
+    background: linear-gradient(135deg, #ea580c 0%, #f97316 100%) !important;
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.4) !important;
+}
+
+.user-role-badge.role-admin {
+    background: rgba(249, 115, 22, 0.2) !important;
+    color: #fdba74 !important;
+    border: 1px solid rgba(249, 115, 22, 0.45) !important;
+}
+
+/* Hero Welcome Banner */
+.dashboard-hero-banner {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.14) 0%, rgba(13, 18, 30, 0.95) 100%) !important;
+    border: 1px solid rgba(249, 115, 22, 0.35) !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45), inset 0 0 24px rgba(249, 115, 22, 0.05) !important;
+}
+
+#dash-btn-open-intake {
+    background: linear-gradient(135deg, #ea580c 0%, #f97316 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px rgba(249, 115, 22, 0.4) !important;
+    border: none !important;
+    font-weight: 700 !important;
+}
+
+#dash-btn-upload-sql {
+    background: rgba(18, 24, 38, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #f8fafc !important;
+    font-weight: 600 !important;
+}
+
+#dash-btn-upload-sql:hover {
+    border-color: rgba(249, 115, 22, 0.5) !important;
+    background: rgba(249, 115, 22, 0.1) !important;
+}
+
+.btn-hero-chatbot {
+    background: linear-gradient(135deg, #ea580c 0%, #f97316 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 18px rgba(249, 115, 22, 0.45) !important;
+}
+
+/* Top KPI Cards */
+.kpi-card {
+    background: linear-gradient(145deg, rgba(16, 22, 36, 0.88) 0%, rgba(11, 15, 26, 0.96) 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.kpi-card:hover {
+    border-color: rgba(249, 115, 22, 0.5) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 22px rgba(249, 115, 22, 0.18) !important;
+}
+
+.kpi-pill-amber {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: rgba(249, 115, 22, 0.14) !important;
+    color: #fb923c !important;
+    border: 1px solid rgba(249, 115, 22, 0.35) !important;
+    box-shadow: 0 0 14px rgba(249, 115, 22, 0.22) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.05rem !important;
+}
+
+/* Department Visual Cards */
+.dept-detail-card {
+    background: linear-gradient(145deg, rgba(16, 22, 36, 0.92) 0%, rgba(10, 14, 24, 0.98) 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45) !important;
+}
+
+.dept-detail-card:hover {
+    border-color: rgba(249, 115, 22, 0.45) !important;
+    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.55), 0 0 26px rgba(249, 115, 22, 0.15) !important;
+}
+
+/* Department Status Badges - All Amber Pill matching mockup */
+.dept-status-indicator {
+    background: rgba(249, 115, 22, 0.18) !important;
+    color: #fdba74 !important;
+    border: 1px solid rgba(249, 115, 22, 0.45) !important;
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.2) !important;
+}
+
+/* Chart Canvas Section Styling with Visual Overlays */
+.dept-chart-section {
+    background: rgba(8, 12, 22, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+/* CCTV Security Radar Grid Background Effect */
+#dept-card-cctv .dept-chart-canvas-box {
+    background-image: 
+        radial-gradient(circle at 75% 30%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 25% 70%, rgba(249, 115, 22, 0.06) 0%, transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
+    border-radius: var(--radius-sm);
+}
+
+/* Food Stock Waveform Background Effect */
+#dept-card-food .dept-chart-canvas-box {
+    background-image: 
+        radial-gradient(circle at 50% 20%, rgba(244, 63, 94, 0.07) 0%, transparent 45%),
+        radial-gradient(circle at 80% 80%, rgba(249, 115, 22, 0.06) 0%, transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
+    border-radius: var(--radius-sm);
+}
+
+/* Transport Road Transit Map Background Effect */
+#dept-card-transport .dept-chart-canvas-box {
+    background-image: 
+        radial-gradient(circle at 30% 30%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 70% 70%, rgba(6, 182, 212, 0.06) 0%, transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
+    border-radius: var(--radius-sm);
+}
+
+/* Department Card Bottom Action Button */
+.btn-dept-ask {
+    background: rgba(249, 115, 22, 0.08) !important;
+    border: 1px solid rgba(249, 115, 22, 0.28) !important;
+    color: #fdba74 !important;
+    font-weight: 600 !important;
+    border-radius: var(--radius-sm) !important;
+    transition: all 0.25s ease !important;
+}
+
+.btn-dept-ask:hover {
+    background: linear-gradient(135deg, rgba(234, 88, 12, 0.28) 0%, rgba(249, 115, 22, 0.4) 100%) !important;
+    border-color: rgba(249, 115, 22, 0.6) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 18px rgba(249, 115, 22, 0.35) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* ==========================================================================
+   LIVE OPERATIONS COMMAND SYSTEM ALERTS TICKER BAR (BOTTOM)
+   ========================================================================== */
+.system-alerts-ticker-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: linear-gradient(145deg, rgba(14, 20, 34, 0.92) 0%, rgba(9, 13, 22, 0.98) 100%);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md);
+    padding: 12px 20px;
+    margin-top: 10px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(249, 115, 22, 0.03);
+    overflow: hidden;
+}
+
+.ticker-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.ticker-pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #10b981;
+    box-shadow: 0 0 10px #10b981, 0 0 18px rgba(16, 185, 129, 0.6);
+    animation: pulseDotGlow 1.8s infinite;
+}
+
+@keyframes pulseDotGlow {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.35); opacity: 0.7; }
+}
+
+.ticker-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.ticker-marquee-wrapper {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    white-space: nowrap;
+}
+
+.ticker-track {
+    display: inline-flex;
+    align-items: center;
+    gap: 24px;
+    animation: tickerSlide 35s linear infinite;
+}
+
+.ticker-track:hover {
+    animation-play-state: paused;
+}
+
+@keyframes tickerSlide {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.ticker-pill {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ticker-pill .ticker-time {
+    color: #fdba74;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.ticker-pill.alert-cctv { border-left: 3px solid #06b6d4; }
+.ticker-pill.alert-food { border-left: 3px solid #10b981; }
+.ticker-pill.alert-trans { border-left: 3px solid #f59e0b; }
+.ticker-pill.alert-tickets { border-left: 3px solid #8b5cf6; }
+.ticker-pill.alert-sqlite { border-left: 3px solid #f97316; }

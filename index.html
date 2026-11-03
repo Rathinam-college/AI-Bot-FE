@@ -31,7 +31,7 @@
     </script>
     
     <!-- Stylesheet (Relative path supports root / and subpath /ai-bot/) -->
-    <link rel="stylesheet" href="./static/css/style.css?v=2.2.1">
+    <link rel="stylesheet" href="./static/css/style.css?v=2.3.0">
 </head>
 <body class="dark-theme">
 
@@ -217,7 +217,7 @@
                         <div class="kpi-card">
                             <div class="kpi-card-header">
                                 <span class="kpi-title">Total Stored Records</span>
-                                <div class="kpi-icon-pill" style="background:rgba(99,102,241,0.15); color:var(--accent-primary);">🗄️</div>
+                                <div class="kpi-icon-pill kpi-pill-amber">🗄️</div>
                             </div>
                             <div class="kpi-val" id="dash-total-records">2,776</div>
                             <div class="kpi-subtext">Across CCTV, Food & Transport</div>
@@ -226,7 +226,7 @@
                         <div class="kpi-card">
                             <div class="kpi-card-header">
                                 <span class="kpi-title">CCTV Safety Cameras</span>
-                                <div class="kpi-icon-pill" style="background:rgba(6,182,212,0.15); color:var(--accent-cyan);">📹</div>
+                                <div class="kpi-icon-pill kpi-pill-amber">📹</div>
                             </div>
                             <div class="kpi-val" id="dash-cctv-cameras">68</div>
                             <div class="kpi-subtext">40 NVRs & 40 Biometric Devices</div>
@@ -235,7 +235,7 @@
                         <div class="kpi-card">
                             <div class="kpi-card-header">
                                 <span class="kpi-title">Food & Inventory Items</span>
-                                <div class="kpi-icon-pill" style="background:rgba(16,185,129,0.15); color:var(--accent-emerald);">🍽️</div>
+                                <div class="kpi-icon-pill kpi-pill-amber">🍽️</div>
                             </div>
                             <div class="kpi-val" id="dash-food-items">311</div>
                             <div class="kpi-subtext">574 Stock Levels & 844 PRs</div>
@@ -244,7 +244,7 @@
                         <div class="kpi-card">
                             <div class="kpi-card-header">
                                 <span class="kpi-title">Transport Bus Fleet</span>
-                                <div class="kpi-icon-pill" style="background:rgba(245,158,11,0.15); color:var(--accent-amber);">🚌</div>
+                                <div class="kpi-icon-pill kpi-pill-amber">🚌</div>
                             </div>
                             <div class="kpi-val" id="dash-transport-buses">5</div>
                             <div class="kpi-subtext">Active campus buses & drivers</div>
@@ -253,7 +253,7 @@
                         <div class="kpi-card">
                             <div class="kpi-card-header">
                                 <span class="kpi-title">Maintenance Tickets</span>
-                                <div class="kpi-icon-pill" style="background:rgba(139,92,246,0.15); color:var(--accent-purple);">🎫</div>
+                                <div class="kpi-icon-pill kpi-pill-amber">🎫</div>
                             </div>
                             <div class="kpi-val" id="dash-tickets-count">224</div>
                             <div class="kpi-subtext">98.5% Resolution Efficiency</div>
@@ -262,7 +262,7 @@
                         <div class="kpi-card">
                             <div class="kpi-card-header">
                                 <span class="kpi-title">Active Team Members</span>
-                                <div class="kpi-icon-pill" style="background:rgba(244,63,94,0.15); color:var(--accent-rose);">👥</div>
+                                <div class="kpi-icon-pill kpi-pill-amber">👥</div>
                             </div>
                             <div class="kpi-val" id="dash-users-count">3</div>
                             <div class="kpi-subtext" id="dash-users-subtext">Role-based access active</div>
@@ -434,6 +434,23 @@
                             <button type="button" class="btn-dept-ask" data-query="List all 5 campus buses with their drivers, contact numbers, seating capacities, and fuel entries.">
                                 💬 Ask Chatbot about Transport Fleet &rarr;
                             </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Operations Command System Alerts Ticker Bar -->
+                    <div class="system-alerts-ticker-bar">
+                        <div class="ticker-label">
+                            <span class="ticker-pulse-dot"></span>
+                            <span class="ticker-title">System Alerts:</span>
+                        </div>
+                        <div class="ticker-marquee-wrapper">
+                            <div class="ticker-track" id="ticker-alerts-track">
+                                <span class="ticker-pill alert-cctv">[CCTV Alert: Camera 12B Online & 68 Nodes Synced] &bull; <span class="ticker-time">5s ago</span></span>
+                                <span class="ticker-pill alert-food">[Food Supply: 844 Purchase Orders In-Sync &bull; Balanced] &bull; <span class="ticker-time">10s ago</span></span>
+                                <span class="ticker-pill alert-trans">[Transport: Bus Route #1 to #5 Operational &bull; 29 Logs] &bull; <span class="ticker-time">1m ago</span></span>
+                                <span class="ticker-pill alert-tickets">[Maintenance: 98.5% Resolution Efficiency &bull; 227 Grounded] &bull; <span class="ticker-time">2m ago</span></span>
+                                <span class="ticker-pill alert-sqlite">[Campus Intelligence: Grounded in SQLite app.db] &bull; <span class="ticker-time">Live</span></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1010,6 +1027,6 @@ Dome camera in Library 2nd floor, IP 10.90.15.42, 4MP, Hikvision DS-2CD2143G0, s
     <div class="toast-container" id="toast-container"></div>
 
     <!-- Main JavaScript App Logic (Relative path supports root / and subpath /ai-bot/) -->
-    <script src="./static/js/app.js?v=2.2.1"></script>
+    <script src="./static/js/app.js?v=2.3.0"></script>
 </body>
 </html>

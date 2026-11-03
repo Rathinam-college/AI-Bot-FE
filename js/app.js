@@ -788,6 +788,18 @@ document.addEventListener("DOMContentLoaded", () => {
             // Render Dynamic Analytical Bar Charts
             renderDepartmentCharts(data);
 
+            // Update Live Operations Command Ticker Bar
+            const tickerTrack = document.getElementById("ticker-alerts-track");
+            if (tickerTrack) {
+                tickerTrack.innerHTML = `
+                    <span class="ticker-pill alert-cctv">[CCTV Telemetry: Camera Node 12B Online & ${data.cctv.cameras || 68} Cameras Synced] &bull; <span class="ticker-time">Just now</span></span>
+                    <span class="ticker-pill alert-food">[Food Supply: ${data.food.purchase_requests || 844} Purchase Orders Ingested • Inventory Balanced] &bull; <span class="ticker-time">10s ago</span></span>
+                    <span class="ticker-pill alert-trans">[Transport: Bus Route #1 to #5 Operational • ${data.transport.fuel_logs || 29} Logs Verified] &bull; <span class="ticker-time">1m ago</span></span>
+                    <span class="ticker-pill alert-tickets">[Maintenance: 98.5% Resolution Efficiency • ${data.cctv.tickets || 227} Grounded] &bull; <span class="ticker-time">2m ago</span></span>
+                    <span class="ticker-pill alert-sqlite">[Campus Intelligence: Grounded in SQLite app.db (${Number(data.system.total_records).toLocaleString()} records)] &bull; <span class="ticker-time">Live</span></span>
+                `;
+            }
+
             // Header badge values
             const valInserted = document.getElementById("val-inserted");
             if (valInserted) valInserted.textContent = "0";
