@@ -116,13 +116,13 @@
                     </svg>
                     <span>User Control</span>
                 </button>
-                <button type="button" class="nav-tab-btn" id="btn-toggle-db-modal" title="View SQLite Tables & Records">
+                <button type="button" class="nav-tab-btn" id="btn-toggle-db-modal" title="View PostgreSQL / Unified Database Tables & Records">
                     <svg class="mini-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
                         <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
                         <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
                     </svg>
-                    <span>SQLite DB</span>
+                    <span>PostgreSQL DB</span>
                 </button>
             </div>
 
@@ -192,7 +192,7 @@
                         <div>
                             <h2 class="hero-title" id="dash-welcome-title">Welcome back, Administrator</h2>
                             <p class="hero-subtitle">
-                                Authoritative Campus Operations Intelligence Hub grounded directly in SQLite (<code style="color:var(--accent-cyan); font-family:var(--font-mono);">app.db</code>).
+                                Authoritative Campus Operations Intelligence Hub grounded directly in PostgreSQL (<code style="color:var(--accent-cyan); font-family:var(--font-mono);">campus_ai_db</code>).
                             </p>
                         </div>
                         <div class="hero-actions">
@@ -779,7 +779,7 @@
         <div class="modal-card" id="db-modal-card">
             <div class="modal-header">
                 <div class="modal-title-group">
-                    <h2 class="modal-title">SQLite Database Inspector (app.db)</h2>
+                    <h2 class="modal-title">PostgreSQL Database Inspector (campus_ai_db)</h2>
                     <span class="modal-badge-total" id="modal-total-badge">0 Records</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -853,7 +853,7 @@
                             <textarea id="input-record-json" rows="6" placeholder='{\n  "name": "Custom Product",\n  "status": "active",\n  "quantity": 10\n}' required style="background:var(--bg-elevated); border:1px solid var(--border-color); color:#fff; padding:10px 14px; border-radius:var(--radius-sm); font-family:var(--font-mono); font-size:0.85rem; resize:vertical;"></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary" id="btn-submit-individual-record" style="align-self: flex-start; padding: 10px 24px;">
-                            💾 Save Record to SQLite DB
+                            💾 Save Record to Database
                         </button>
                     </form>
                 </div>
@@ -900,7 +900,7 @@
                     <div>
                         <h2 class="modal-title">Smart Department Data Intake</h2>
                         <p style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">
-                            AI analyzes, extracts every attribute, and persists into SQLite with zero mismatching
+                            AI analyzes, extracts every attribute, and persists into Database with zero mismatching
                         </p>
                     </div>
                 </div>
@@ -1013,7 +1013,7 @@ Dome camera in Library 2nd floor, IP 10.90.15.42, 4MP, Hikvision DS-2CD2143G0, s
                                 Department total: 1 records
                             </div>
                             <div style="display:flex; gap:10px;">
-                                <button type="button" class="btn btn-secondary" id="btn-intake-view-db">View in SQLite DB</button>
+                                <button type="button" class="btn btn-secondary" id="btn-intake-view-db">View in Database</button>
                                 <button type="button" class="btn btn-emerald" id="btn-intake-add-another">➕ Add Another Record</button>
                             </div>
                         </div>
@@ -1027,6 +1027,6 @@ Dome camera in Library 2nd floor, IP 10.90.15.42, 4MP, Hikvision DS-2CD2143G0, s
     <div class="toast-container" id="toast-container"></div>
 
     <!-- Main JavaScript App Logic (Relative path supports root / and subpath /ai-bot/) -->
-    <script src="./static/js/app.js?v=2.3.0"></script>
+    <script src="./static/js/app.js?v=2.3.1"></script>
 </body>
 </html>
