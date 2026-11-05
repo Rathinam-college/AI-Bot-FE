@@ -882,7 +882,9 @@ document.addEventListener("DOMContentLoaded", () => {
     async function selectChatSession(sessionId) {
         currentSessionId = sessionId;
         try {
-            const res = await fetch(`${API_BASE}/chat/sessions/${sessionId}/messages`);
+            const res = await fetch(`${API_BASE}/chat/sessions/${sessionId}/messages`, {
+                headers: getAuthHeaders()
+            });
             if (!res.ok) throw new Error("Failed to load messages");
             const data = await res.json();
             const session = data.session;
@@ -917,17 +919,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function deleteChatSession(sessionId) {
         try {
-            const res = await fetch(`${API_BASE}/chat/sessions/${sessionId}`, { method: "DELETE" });
+            const res = await fetch(`${API_BASE}/chat/sessions/${sessionId}`, {
+                method: "DELETE",
+                headers: getAuthHeaders()
+            });
             if (res.ok) {
-                showToast("Chat session deleted.", "info");
+                showToast("Chat session deleted successfully.", "info");
                 if (currentSessionId === sessionId) {
                     createNewChatSession();
                 } else {
                     loadChatSessions();
                 }
+            } else {
+                const errData = await res.json().catch(() => ({}));
+                showToast(`Failed to delete session: ${errData.detail || res.statusText}`, "error");
             }
         } catch (err) {
-            showToast("Failed to delete chat session.", "error");
+            showToast(`Failed to delete chat session: ${err.message}`, "error");
         }
     }
 
