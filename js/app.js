@@ -396,7 +396,14 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             authToken = null;
             currentUser = null;
+            currentSessionId = null;
+            activeChatHistory = [];
             localStorage.removeItem("campus_auth_token");
+            if (chatSessionsList) chatSessionsList.innerHTML = "";
+            if (chatMessages) {
+                chatMessages.innerHTML = "";
+                appendWelcomeMessage();
+            }
             showToast("You have been signed out.", "info");
             showLoginView();
         });
