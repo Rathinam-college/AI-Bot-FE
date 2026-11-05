@@ -19,6 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (path.includes("/ai-bot")) {
             return "/ai-bot/api";
         }
+        if (window.location.protocol === "file:" || (window.location.port && window.location.port !== "8000")) {
+            return "http://127.0.0.1:8000/api";
+        }
         return "/api";
     };
     const API_BASE = getApiBase();
