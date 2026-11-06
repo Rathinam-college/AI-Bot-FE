@@ -1,9 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="canvas">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Server AI Assistant | Campus Operations Hub</title>
+    <script>
+        (function() {
+            var savedTheme = localStorage.getItem('campus_ai_theme') || 'canvas';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
     <meta name="description" content="Production-ready Campus Server AI Assistant with dedicated Refresh Point data synchronization, Dashboard, Chatbot History, Report Generation, and Role-Based User Access Control.">
     
     <!-- Google Fonts -->
@@ -31,7 +37,7 @@
     </script>
     
     <!-- Stylesheet (Relative path supports root / and subpath /ai-bot/) -->
-    <link rel="stylesheet" href="./static/css/style.css?v=2.3.0">
+    <link rel="stylesheet" href="./static/css/style.css?v=2.4.0">
 </head>
 <body class="dark-theme">
 
@@ -128,6 +134,99 @@
 
             <!-- Navbar Right Controls & Profile Capsule -->
             <div class="nav-right-actions">
+                <!-- Interactive Theme Switcher Dropdown -->
+                <div class="theme-dropdown-wrapper" id="theme-dropdown-wrapper">
+                    <button type="button" class="btn-theme-selector" id="btn-theme-toggle" aria-haspopup="true" aria-expanded="false" title="Customize UI Theme & Color Grading">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-palette-svg">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 2a10 10 0 0 1 10 10c0 2.5-1.5 4-3.5 4h-1.5c-1 0-1.5.5-1.5 1.5 0 .8.4 1.5.4 2.3 0 1.2-.9 2.2-2.1 2.2-6.2 0-11.3-5.1-11.3-11.3C2 6.5 6.5 2 12 2z"></path>
+                            <circle cx="7.5" cy="10.5" r="1.2" fill="currentColor"></circle>
+                            <circle cx="12" cy="7.5" r="1.2" fill="currentColor"></circle>
+                            <circle cx="16.5" cy="10.5" r="1.2" fill="currentColor"></circle>
+                        </svg>
+                        <span class="theme-active-dot" id="theme-active-dot"></span>
+                        <span class="theme-name-text" id="theme-active-label">AI Canvas</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-chevron-svg">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    
+                    <div class="theme-menu" id="theme-options-menu" role="menu">
+                        <div class="theme-menu-header">Select Color Grading</div>
+                        
+                        <button type="button" class="theme-option-btn active" data-theme-val="canvas">
+                            <div class="theme-preview-dots">
+                                <span style="background: #588EF4;"></span>
+                                <span style="background: #749985;"></span>
+                                <span style="background: #BEB9DF;"></span>
+                                <span style="background: #DADCF4;"></span>
+                            </div>
+                            <div class="theme-option-info">
+                                <span class="theme-option-name">AI Canvas (Awsmd)</span>
+                                <span class="theme-option-desc">Flagship Pastel & Blue Elemental</span>
+                            </div>
+                            <span class="theme-check-icon">✓</span>
+                        </button>
+                        
+                        <button type="button" class="theme-option-btn" data-theme-val="cyberpunk">
+                            <div class="theme-preview-dots">
+                                <span style="background: #06b6d4;"></span>
+                                <span style="background: #6366f1;"></span>
+                                <span style="background: #8b5cf6;"></span>
+                                <span style="background: #0a0d14;"></span>
+                            </div>
+                            <div class="theme-option-info">
+                                <span class="theme-option-name">Obsidian Cyber</span>
+                                <span class="theme-option-desc">Deep Neon Glass Dark</span>
+                            </div>
+                            <span class="theme-check-icon">✓</span>
+                        </button>
+                        
+                        <button type="button" class="theme-option-btn" data-theme-val="sage">
+                            <div class="theme-preview-dots">
+                                <span style="background: #749985;"></span>
+                                <span style="background: #34d399;"></span>
+                                <span style="background: #0f1715;"></span>
+                                <span style="background: #f0fdf4;"></span>
+                            </div>
+                            <div class="theme-option-info">
+                                <span class="theme-option-name">Silent Sage Luxe</span>
+                                <span class="theme-option-desc">Organic Emerald & Deep Slate</span>
+                            </div>
+                            <span class="theme-check-icon">✓</span>
+                        </button>
+                        
+                        <button type="button" class="theme-option-btn" data-theme-val="sunset">
+                            <div class="theme-preview-dots">
+                                <span style="background: #f43f5e;"></span>
+                                <span style="background: #a855f7;"></span>
+                                <span style="background: #f59e0b;"></span>
+                                <span style="background: #0e0d1c;"></span>
+                            </div>
+                            <div class="theme-option-info">
+                                <span class="theme-option-name">Cosmic Aurora</span>
+                                <span class="theme-option-desc">Midnight Violet & Coral Glow</span>
+                            </div>
+                            <span class="theme-check-icon">✓</span>
+                        </button>
+
+                        <button type="button" class="theme-option-btn" data-theme-val="nordic">
+                            <div class="theme-preview-dots">
+                                <span style="background: #2563eb;"></span>
+                                <span style="background: #0d9488;"></span>
+                                <span style="background: #64748b;"></span>
+                                <span style="background: #ffffff;"></span>
+                            </div>
+                            <div class="theme-option-info">
+                                <span class="theme-option-name">Nordic Clean</span>
+                                <span class="theme-option-desc">High Contrast Studio Minimal</span>
+                            </div>
+                            <span class="theme-check-icon">✓</span>
+                        </button>
+                    </div>
+                </div>
+
+
                 <!-- Sync Trigger -->
                 <button class="btn btn-primary" id="btn-refresh-sync" title="Fetch live data from target microservices" style="padding: 6px 14px; font-size: 0.8rem;">
                     <svg class="sync-icon" id="sync-spinner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
@@ -1027,6 +1126,6 @@ Dome camera in Library 2nd floor, IP 10.90.15.42, 4MP, Hikvision DS-2CD2143G0, s
     <div class="toast-container" id="toast-container"></div>
 
     <!-- Main JavaScript App Logic (Relative path supports root / and subpath /ai-bot/) -->
-    <script src="./static/js/app.js?v=2.3.3"></script>
+    <script src="./static/js/app.js?v=2.4.0"></script>
 </body>
 </html>

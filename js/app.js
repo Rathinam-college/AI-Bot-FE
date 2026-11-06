@@ -503,7 +503,57 @@ document.addEventListener("DOMContentLoaded", () => {
     const deptCharts = { cctv: null, food: null, transport: null };
     let lastDashboardData = null;
 
-    // Native High-Performance HTML5 Canvas Bar Chart Fallback (Guaranteed to render under any network / CSP / firewall)
+
+    // =========================================================================
+    // MULTI-THEME ENGINE (FLAGSHIP AI CANVAS + 4 THEMES)
+    // =========================================================================
+    const THEME_CONFIGS = {
+        canvas: { name: "AI Canvas", dot: "#588EF4" },
+        cyberpunk: { name: "Obsidian Cyber", dot: "#06b6d4" },
+        sage: { name: "Silent Sage", dot: "#749985" },
+        sunset: { name: "Cosmic Aurora", dot: "#f43f5e" },
+        nordic: { name: "Nordic Clean", dot: "#2563eb" }
+    };
+
+    function getCurrentTheme() {
+        return document.documentElement.getAttribute("data-theme") || localStorage.getItem("campus_ai_theme") || "canvas";
+    }
+
+    function getThemeChartPalettes(theme) {
+        if (theme === "canvas") {
+            return {
+                cctv: ["#588EF4", "#749985", "#BEB9DF", "#8fa6ff", "#f43f5e"],
+                food: ["#749985", "#588EF4", "#BEB9DF", "#f59e0b", "#ec4899"],
+                transport: ["#588EF4", "#749985", "#BEB9DF", "#3b82f6", "#4376dc"]
+            };
+        } else if (theme === "sage") {
+            return {
+                cctv: ["#749985", "#34d399", "#2dd4bf", "#5eead4", "#f87171"],
+                food: ["#34d399", "#749985", "#fbbf24", "#2dd4bf", "#f472b6"],
+                transport: ["#fbbf24", "#34d399", "#749985", "#2dd4bf", "#38bdf8"]
+            };
+        } else if (theme === "sunset") {
+            return {
+                cctv: ["#f43f5e", "#c084fc", "#fbbf24", "#38bdf8", "#ec4899"],
+                food: ["#c084fc", "#f43f5e", "#fbbf24", "#f472b6", "#a855f7"],
+                transport: ["#fbbf24", "#f43f5e", "#c084fc", "#38bdf8", "#e11d48"]
+            };
+        } else if (theme === "nordic") {
+            return {
+                cctv: ["#2563eb", "#0d9488", "#7c3aed", "#0284c7", "#ef4444"],
+                food: ["#0d9488", "#2563eb", "#d97706", "#7c3aed", "#db2777"],
+                transport: ["#d97706", "#0d9488", "#2563eb", "#7c3aed", "#0284c7"]
+            };
+        }
+        // Default cyberpunk
+        return {
+            cctv: ["#06b6d4", "#10b981", "#8b5cf6", "#6366f1", "#f43f5e"],
+            food: ["#10b981", "#06b6d4", "#f59e0b", "#8b5cf6", "#ec4899"],
+            transport: ["#f59e0b", "#10b981", "#06b6d4", "#8b5cf6", "#3b82f6"]
+        };
+    }
+
+    // Native High-Performance HTML5 Canvas Bar Chart Fallback (Theme-Aware Contrast)
     function drawNativeBarChart(canvasId, config) {
         const canvas = document.getElementById(canvasId);
         if (!canvas) return;
@@ -519,6 +569,13 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.scale(dpr, dpr);
         ctx.clearRect(0, 0, w, h);
 
+        const currentTheme = getCurrentTheme();
+        const isLight = currentTheme === "canvas" || currentTheme === "nordic";
+        const gridColor = isLight ? "rgba(30, 30, 30, 0.08)" : "rgba(255, 255, 255, 0.05)";
+        const axisColor = isLight ? "#71788e" : "#64748b";
+        const valColor = isLight ? "#1e1e1e" : "#f8fafc";
+        const lblColor = isLight ? "#525866" : "#94a3b8";
+
         const labels = config.labels || [];
         const values = config.values || [];
         const colors = config.colors || [];
@@ -532,7 +589,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const chartH = h - padTop - padBottom;
 
         // Background subtle grid
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+        ctx.strokeStyle = gridColor;
         ctx.lineWidth = 1;
         for (let i = 0; i <= 4; i++) {
             const y = padTop + (chartH / 4) * i;
@@ -542,7 +599,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx.stroke();
 
             const val = Math.round(maxVal - (maxVal / 4) * i);
-            ctx.fillStyle = "#64748b";
+            ctx.fillStyle = axisColor;
             ctx.font = "10px 'JetBrains Mono', monospace";
             ctx.textAlign = "right";
             ctx.fillText(val, padLeft - 6, y + 3);
@@ -557,7 +614,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const barH = Math.max(4, (val / maxVal) * chartH);
             const x = padLeft + (i * gap) + (gap - barWidth) / 2;
             const y = padTop + chartH - barH;
-            const color = colors[i] || "#06b6d4";
+            const color = colors[i] || "#588ef4";
 
             // Bar fill and border
             ctx.fillStyle = color + "cc";
@@ -577,13 +634,13 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx.stroke();
 
             // Value text on top
-            ctx.fillStyle = "#f8fafc";
+            ctx.fillStyle = valColor;
             ctx.font = "bold 10px 'JetBrains Mono', monospace";
             ctx.textAlign = "center";
             ctx.fillText(val, x + barWidth / 2, Math.max(11, y - 5));
 
             // X-axis label text
-            ctx.fillStyle = "#94a3b8";
+            ctx.fillStyle = lblColor;
             ctx.font = "10px 'Plus Jakarta Sans', sans-serif";
             const lbl = labels[i].length > 10 ? labels[i].slice(0, 8) + ".." : labels[i];
             ctx.fillText(lbl, x + barWidth / 2, h - 10);
@@ -603,12 +660,26 @@ document.addEventListener("DOMContentLoaded", () => {
         const ctx = canvas.getContext("2d");
         const deptKey = chartId.replace("chart-", "");
 
+        const currentTheme = getCurrentTheme();
+        const isLight = currentTheme === "canvas" || currentTheme === "nordic";
+        const gridColor = isLight ? "rgba(30, 30, 30, 0.08)" : "rgba(255, 255, 255, 0.05)";
+        const tickColor = isLight ? "#525866" : "#94a3b8";
+
         if (deptCharts[deptKey]) {
             deptCharts[deptKey].data.labels = chartConfig.labels;
             deptCharts[deptKey].data.datasets[0].data = chartConfig.values;
             deptCharts[deptKey].data.datasets[0].backgroundColor = chartConfig.colors.map(c => c + "cc");
             deptCharts[deptKey].data.datasets[0].hoverBackgroundColor = chartConfig.colors;
             deptCharts[deptKey].data.datasets[0].borderColor = chartConfig.colors;
+            if (deptCharts[deptKey].options && deptCharts[deptKey].options.scales) {
+                if (deptCharts[deptKey].options.scales.x && deptCharts[deptKey].options.scales.x.ticks) {
+                    deptCharts[deptKey].options.scales.x.ticks.color = tickColor;
+                }
+                if (deptCharts[deptKey].options.scales.y) {
+                    if (deptCharts[deptKey].options.scales.y.grid) deptCharts[deptKey].options.scales.y.grid.color = gridColor;
+                    if (deptCharts[deptKey].options.scales.y.ticks) deptCharts[deptKey].options.scales.y.ticks.color = tickColor;
+                }
+            }
             deptCharts[deptKey].update();
             return;
         }
@@ -685,11 +756,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!data) return;
         lastDashboardData = data;
 
+        const currentTheme = getCurrentTheme();
+        const themePalettes = getThemeChartPalettes(currentTheme);
+
         // 1. CCTV Chart
         const cctvChartData = data.cctv && data.cctv.chart ? data.cctv.chart : {
             labels: ["Cameras", "NVR Units", "Biometrics", "Switches", "Open Tickets"],
             values: [data.cctv.cameras || 68, data.cctv.nvrs || 40, data.cctv.biometrics || 40, data.cctv.switches || 11, data.cctv.open_tickets || 8],
-            colors: ["#06b6d4", "#10b981", "#8b5cf6", "#6366f1", "#f43f5e"],
+            colors: themePalettes.cctv,
             unit: "devices",
             summary: `${data.cctv.cameras || 68} Cameras online across campus, ${data.cctv.nvrs || 40} NVRs active, ${data.cctv.open_tickets || 8} open tickets in queue.`
         };
@@ -701,7 +775,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const foodChartData = data.food && data.food.chart ? data.food.chart : {
             labels: ["Menu Items", "Stock Levels", "Purchase Orders", "Material Reqs", "Vendors"],
             values: [data.food.menu_items || 311, data.food.inventory_stock || 574, data.food.purchase_requests || 844, data.food.material_requests || 481, data.food.vendors || 40],
-            colors: ["#10b981", "#06b6d4", "#f59e0b", "#8b5cf6", "#ec4899"],
+            colors: themePalettes.food,
             unit: "records",
             summary: `${data.food.menu_items || 311} Dishes registered, ${data.food.purchase_requests || 844} Purchase Orders processed, ${data.food.vendors || 40} active suppliers.`
         };
@@ -713,7 +787,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const transportChartData = data.transport && data.transport.chart ? data.transport.chart : {
             labels: ["Active Buses", "Drivers", "Fuel Logs", "Service Renewals", "Avg Seats/Bus"],
             values: [data.transport.buses || 5, data.transport.drivers || 5, data.transport.fuel_logs || 29, data.transport.renewals || 29, data.transport.avg_capacity || 52],
-            colors: ["#f59e0b", "#10b981", "#06b6d4", "#8b5cf6", "#3b82f6"],
+            colors: themePalettes.transport,
             unit: "entries",
             summary: `${data.transport.buses || 5} Campus buses active, ${data.transport.fuel_logs || 29} fuel logs tracked, ${data.transport.renewals || 29} compliance renewals.`
         };
@@ -1951,5 +2025,83 @@ document.addEventListener("DOMContentLoaded", () => {
     // =========================================================================
     // START APPLICATION AUTH INITIALIZATION
     // =========================================================================
+
+    // =========================================================================
+    // THEME SWITCHER CONTROLLER
+    // =========================================================================
+    function initThemeSwitcher() {
+        const themeWrapper = document.getElementById("theme-dropdown-wrapper");
+        const themeToggleBtn = document.getElementById("btn-theme-toggle");
+        const themeActiveLabel = document.getElementById("theme-active-label");
+        const themeActiveDot = document.getElementById("theme-active-dot");
+        const themeOptions = document.querySelectorAll(".theme-option-btn");
+
+        const savedTheme = localStorage.getItem("campus_ai_theme") || "canvas";
+        applyTheme(savedTheme, false);
+
+        if (themeToggleBtn && themeWrapper) {
+            themeToggleBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                themeWrapper.classList.toggle("open");
+                const isOpen = themeWrapper.classList.contains("open");
+                themeToggleBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            });
+
+            document.addEventListener("click", (e) => {
+                if (!themeWrapper.contains(e.target)) {
+                    themeWrapper.classList.remove("open");
+                    themeToggleBtn.setAttribute("aria-expanded", "false");
+                }
+            });
+
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape" && themeWrapper.classList.contains("open")) {
+                    themeWrapper.classList.remove("open");
+                    themeToggleBtn.setAttribute("aria-expanded", "false");
+                }
+            });
+        }
+
+        themeOptions.forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const selected = btn.dataset.themeVal;
+                applyTheme(selected, true);
+                if (themeWrapper) {
+                    themeWrapper.classList.remove("open");
+                    if (themeToggleBtn) themeToggleBtn.setAttribute("aria-expanded", "false");
+                }
+            });
+        });
+
+        function applyTheme(themeKey, notify) {
+            const validKey = THEME_CONFIGS[themeKey] ? themeKey : "canvas";
+            document.documentElement.setAttribute("data-theme", validKey);
+            localStorage.setItem("campus_ai_theme", validKey);
+
+            if (themeActiveLabel) {
+                themeActiveLabel.textContent = THEME_CONFIGS[validKey].name;
+            }
+            if (themeActiveDot) {
+                themeActiveDot.style.background = THEME_CONFIGS[validKey].dot;
+                themeActiveDot.style.boxShadow = `0 0 8px ${THEME_CONFIGS[validKey].dot}aa`;
+            }
+
+            themeOptions.forEach(b => {
+                b.classList.toggle("active", b.dataset.themeVal === validKey);
+            });
+
+            if (notify) {
+                showToast(`Switched theme to ${THEME_CONFIGS[validKey].name}`, "info");
+            }
+
+            // Redraw dashboard charts immediately with new theme palette
+            if (lastDashboardData) {
+                renderDepartmentCharts(lastDashboardData);
+            }
+        }
+    }
+
+    initThemeSwitcher();
     initAuth();
 });
