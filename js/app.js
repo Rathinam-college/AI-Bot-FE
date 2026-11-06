@@ -177,14 +177,28 @@ document.addEventListener("DOMContentLoaded", () => {
     function showToast(message, type = "info") {
         const toast = document.createElement("div");
         toast.className = `toast toast-${type}`;
-        toast.innerHTML = `<span>${message}</span>`;
-        toastContainer.appendChild(toast);
+        
+        let iconSvg = "";
+        if (type === "success") {
+            iconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.6" style="width:19px;height:19px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+        } else if (type === "error") {
+            iconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2.6" style="width:19px;height:19px;flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+        } else {
+            iconSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="#588ef4" stroke-width="2.6" style="width:19px;height:19px;flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+        }
+
+        const cleanMsg = message.replace(/^[✅❌⚠️ℹ️⚡]\s*/, "");
+        toast.innerHTML = `${iconSvg}<span class="toast-message-text">${cleanMsg}</span>`;
+        if (toastContainer) {
+            toastContainer.appendChild(toast);
+        }
+
         setTimeout(() => {
             toast.style.opacity = "0";
             toast.style.transform = "translateX(100%)";
-            toast.style.transition = "all 0.3s ease";
+            toast.style.transition = "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)";
             setTimeout(() => toast.remove(), 300);
-        }, 4000);
+        }, 4500);
     }
 
     function escapeHtml(text) {

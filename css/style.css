@@ -1244,36 +1244,53 @@ body {
     right: 24px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    z-index: 1000;
+    gap: 12px;
+    z-index: 99999;
     pointer-events: none;
+    max-width: 460px;
 }
 
 .toast {
-    background: var(--bg-elevated);
-    color: #ffffff;
-    border: 1px solid var(--border-color);
-    padding: 12px 18px;
+    background: rgba(20, 24, 38, 0.96);
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 13px 20px;
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
-    font-size: 0.85rem;
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.35), 0 4px 14px rgba(0, 0, 0, 0.15);
+    font-size: 0.86rem;
+    font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 10px;
-    animation: toastSlideIn 0.3s ease-out;
+    gap: 12px;
+    animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: auto;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    line-height: 1.45;
+}
+
+.toast .toast-message-text {
+    color: #f8fafc !important;
+    font-weight: 600;
+    flex: 1;
 }
 
 .toast-success {
-    border-left: 4px solid var(--accent-emerald);
+    border-left: 4px solid #10b981 !important;
+    background: linear-gradient(145deg, rgba(20, 26, 40, 0.97) 0%, rgba(16, 24, 34, 0.98) 100%) !important;
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.35), 0 0 24px rgba(16, 185, 129, 0.28) !important;
 }
 
 .toast-error {
-    border-left: 4px solid var(--accent-rose);
+    border-left: 4px solid #f43f5e !important;
+    background: linear-gradient(145deg, rgba(26, 20, 30, 0.97) 0%, rgba(24, 16, 24, 0.98) 100%) !important;
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.35), 0 0 24px rgba(244, 63, 94, 0.28) !important;
 }
 
 .toast-info {
-    border-left: 4px solid var(--accent-cyan);
+    border-left: 4px solid #588ef4 !important;
+    background: linear-gradient(145deg, rgba(20, 24, 42, 0.97) 0%, rgba(16, 20, 36, 0.98) 100%) !important;
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.35), 0 0 24px rgba(88, 142, 244, 0.28) !important;
 }
 
 @keyframes toastSlideIn {
